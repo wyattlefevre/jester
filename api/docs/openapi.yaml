@@ -1,0 +1,213 @@
+openapi: 3.0.2
+info:
+  title: Jester api
+  description: The api for Jester, a game platform built by Wyatt LeFevre as a school project
+  version: "0.1"
+servers:
+  - url: https://jester.com/api
+
+paths:
+  /hello:
+    get:
+      summary: A hello world endpoint to get started"
+      responses:
+        200:
+          description: Successfully said hi.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Data:
+                    type: string
+                    example: hello from jester api
+  /users/login:
+    post:
+      summary: login using email and password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./components/login.yaml
+      responses:
+        200:
+          description: Successful login
+          headers:
+            Authorization:
+              schema:
+                type: string
+              description: session token for authentication with aws cognito
+  /users/signup:
+    post:
+      summary: signup and create new user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: ./components/login.yaml
+      responses:
+        200:
+          description: User created successfully
+          headers:
+            Authorization:
+              schema:
+                type: string
+              description: session token for authentication with aws cognito
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Password too weak
+        500:
+          description: Internal Server Error, server or database down
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Error:
+                    type: string
+                    example: Internal Server Error
+  /users/auth:
+    get:
+      summary: determine the authenticity of a logged in user
+      parameters:
+        - in: header
+          name: authorization
+          schema:
+            type: string
+          description: authorization token
+      responses:
+        200:
+          description: authentication successful
+        401:
+          description: unauthorized
+
+  /games/join:
+    post:
+      summary: join a game lobby and request a web socket connection
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                RoomCode:
+                  type: string
+                  example: x74ha
+      responses:
+        200:
+          description: request successful
+          content:
+            application/json:
+              schema:
+                type: string
+                example: TODO # TODO: figure out what needs to happen here
+  /games/list:
+    get:
+      summary: list available games
+      responses:
+        200:
+          description: Successful request
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                example:
+                  - id: "1"
+                    name: "Medevial Battle"
+                    description: "RPS style tournament game"
+                    # could include image or other assets in the future
+                  - id: "2"
+                    name: "Time Machine"
+                    description: "Group superlatives game. Make your best guess about your friends futures!"
+  /games/host:
+    get:
+      summary: request to host a game
+      parameters:
+        - in: header
+          name: authorization
+          schema:
+            type: string
+          description: authorization token
+      responses:
+        200:
+  /games/{game}/settings:
+    get:
+      summary: get configurable settings for a game with default values
+      responses:
+        200:
+          description: JSON object containing available settings and their types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                example:
+                  - name: match-length
+                    type: integer
+                    description: Number of rounds in a match
+                    value: 5
+                  - name: win-by-two
+                    type: boolean
+                    description: Whether competitors must win by a margin of two
+                    value: true
+  /games/{game}/start:
+    post:
+      summary: start game with given settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+              example:
+                - name: match-length
+                  value: 5
+                - name: win-by-two
+                  value: true
+      responses:
+        200:
+          description: successfully updated game settings
+        400:
+          description: bad request
+        403:
+          description: forbidden
+        500:
+          description: internal server error
+
+  # /users:
+  #   $ref: ./paths/users/users_resource_summary.yaml
+  # /user:
+  #   $ref: ./paths/user/user_resource_summary.yaml
+  # /user/{user}:
+  #   $ref: ./paths/user/user/user_resource_summary.yaml
+  # /user/{user}/auth:
+  #   $ref: ./paths/user/user/auth/user_auth_resource_summary.yaml
+  # /user/{user}/policy:
+  #   $ref: ./paths/user/user/policy/user_policy_resource_summary.yaml
+  # /user/{user}/policy/{policy}:
+  #   $ref: ./paths/user/user/policy/policy/user_policy_resource_summary.yaml
+  # /user/{user}/group:
+  #   $ref: ./paths/user/user/group/group_resource_summary.yaml
+  # /user/{user}/group/{group}:
+  #   $ref: ./paths/user/user/group/group/group_resource_summary.yaml
+  # /groups:
+  #   $ref: ./paths/groups/groups_resource_summary.yaml
+  # /group:
+  #   $ref: ./paths/group/group_resource_summary.yaml
+  # /group/{group}:
+  #   $ref: ./paths/group/group/group_resource_summary.yaml
+  # /group/{group}/policy:
+  #   $ref: ./paths/group/group/policy/policy_resource_summary.yaml
+  # /group/{group}/policy/{policy}:
+  #   $ref: ./paths/group/group/policy/policy/policy_resource_statement.yaml

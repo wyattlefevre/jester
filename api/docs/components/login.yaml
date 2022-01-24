@@ -1,0 +1,8 @@
+type: object
+properties:
+  Email:
+    type: string
+    example: fred@gmail.com
+  Password:
+    type: string
+    example: P@$$word1234
