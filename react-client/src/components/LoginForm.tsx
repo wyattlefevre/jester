@@ -1,4 +1,4 @@
-import { Button, TextField } from '@mui/material'
+import { Alert, Button, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useState } from 'react'
 
@@ -10,14 +10,15 @@ interface LoginFormProps {
     setPasswordError: React.Dispatch<React.SetStateAction<boolean>>,
   ) => void
   buttonText: string
+  errMessage?: string
 }
 
-const LoginForm = ({ callback, buttonText }: LoginFormProps) => {
+const LoginForm = ({ callback, buttonText, errMessage }: LoginFormProps) => {
   const [email, setEmail] = useState<string>('')
   const [emailError, setEmailError] = useState<boolean>(false)
-
   const [password, setPassword] = useState<string>('')
   const [passwordError, setPasswordError] = useState<boolean>(false)
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     callback(email, setEmailError, password, setPasswordError)
@@ -46,6 +47,11 @@ const LoginForm = ({ callback, buttonText }: LoginFormProps) => {
             error={passwordError}
             fullWidth
           />
+          {errMessage && (
+            <Alert sx={{ mb: 1 }} severity="error">
+              {errMessage}
+            </Alert>
+          )}
           <Button type="submit" variant="contained" sx={{ width: 300 }}>
             {buttonText}
           </Button>

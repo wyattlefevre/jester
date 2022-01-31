@@ -1,40 +1,72 @@
-import React, { useEffect } from 'react'
-import { fakeAuthProvider } from '../../services/auth/auth'
+import React, { useState } from 'react'
+import Pool from '../../services/auth/UserPool'
+import { CognitoUser, AuthenticationDetails, CognitoUserSession } from 'amazon-cognito-identity-js'
 
 interface AuthContextType {
-  user: any //TODO: set type?
-  signin: (user: string, callback: VoidFunction) => void
-  signout: (callback: VoidFunction) => void
+  authenticate: (Username: string, Password: string) => Promise<CognitoUserSession | null>
+  getSession: () => Promise<CognitoUserSession | null>
+  logout: () => void
+  user: CognitoUser | null
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!)
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = React.useState<any>(null) //TODO: set user type?
-  const signin = (newUser: string, callback: VoidFunction) => {
-    return fakeAuthProvider.signin(() => {
-      setUser(newUser)
-      localStorage.setItem('user', newUser)
-      callback()
+  const [user, setUser] = useState<CognitoUser | null>(Pool.getCurrentUser())
+
+  const getSession: () => Promise<CognitoUserSession | null> = async () => {
+    return await new Promise((resolve, reject) => {
+      const user = Pool.getCurrentUser()
+      if (user) {
+        user.getSession((err: Error | null, session: CognitoUserSession | null) => {
+          if (err) {
+            reject()
+          } else {
+            resolve(session)
+          }
+        })
+      } else {
+        reject()
+      }
     })
   }
 
-  const signout = (callback: VoidFunction) => {
-    return fakeAuthProvider.signout(() => {
-      setUser(null)
-      localStorage.removeItem('user')
-      callback()
+  const authenticate: (
+    Username: string,
+    Password: string,
+  ) => Promise<CognitoUserSession | null> = async (Username: string, Password: string) => {
+    return await new Promise((resolve, reject) => {
+      const user = new CognitoUser({ Username, Pool })
+      const authDetails = new AuthenticationDetails({ Username, Password })
+
+      user.authenticateUser(authDetails, {
+        onSuccess: (data) => {
+          console.log('onSuccess: ', data)
+          setUser(user)
+          resolve(data)
+        },
+        onFailure: (err) => {
+          console.error('onFailure: ', err)
+          reject(err)
+        },
+        newPasswordRequired: (data) => {
+          console.log('newPasswordRequired: ', data)
+          resolve(data)
+        },
+      })
     })
   }
 
-  const value = { user, signin, signout }
-
-  useEffect(() => {
-    const savedUser = localStorage.getItem('user')
-    if (savedUser !== null) {
-      setUser(savedUser)
+  const logout = () => {
+    const user = Pool.getCurrentUser()
+    if (user) {
+      user.signOut()
+      setUser(Pool.getCurrentUser())
     }
-  })
+  }
+
+  const value = { authenticate, getSession, logout, user }
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

@@ -1,5 +1,5 @@
 import { Typography } from '@mui/material'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../components/auth/AuthProvider'
 import LoginForm from '../components/LoginForm'
@@ -14,31 +14,14 @@ const Login = () => {
   let navigate = useNavigate()
   let location = useLocation()
   let auth = useAuth()
-
   let from = (location.state as LocationState)?.from?.pathname || '/'
+  const [errMessage, setErrMessage] = useState<string>('')
 
   useEffect(() => {
-    if (auth?.user !== null) {
+    if (auth.user !== null) {
       navigate(from, { replace: true })
     }
   })
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-
-    let formData = new FormData(event.currentTarget)
-    let username = formData.get('username') as string
-
-    auth.signin(username, () => {
-      // Send them back to the page they tried to visit when they were
-      // redirected to the login page. Use { replace: true } so we don't create
-      // another entry in the history stack for the login page.  This means that
-      // when they get to the protected page and click the back button, they
-      // won't end up back on the login page, which is also really nice for the
-      // user experience.
-      navigate(from, { replace: true })
-    })
-  }
 
   const handleCredentials = (
     email: string,
@@ -51,18 +34,18 @@ const Login = () => {
       setPasswordError(false)
       console.log('email', email)
       console.log('password', password)
-      auth.signin(email, () => {
-        // Send them back to the page they tried to visit when they were
-        // redirected to the login page. Use { replace: true } so we don't create
-        // another entry in the history stack for the login page.  This means that
-        // when they get to the protected page and click the back button, they
-        // won't end up back on the login page, which is also really nice for the
-        // user experience.
-        navigate(from, { replace: true })
-      })
+      auth
+        .authenticate(email, password)
+        .then((data) => {
+          navigate(from, { replace: true })
+        })
+        .catch((err) => {
+          console.error(err)
+          setErrMessage(err.message)
+        })
     } else {
-      email || setEmailError(true)
-      password || setPasswordError(true)
+      setEmailError(email ? false : true)
+      setPasswordError(password ? false : true)
     }
   }
 
@@ -71,7 +54,7 @@ const Login = () => {
       <Typography sx={{ mt: 6, mb: 2 }} variant="h5" align="center">
         Login
       </Typography>
-      <LoginForm callback={handleCredentials} buttonText="Login" />
+      <LoginForm callback={handleCredentials} buttonText="Login" errMessage={errMessage} />
       <Typography variant="body2" align="center">
         Don't have an account? <Link to="/signup">Sign up here</Link>
       </Typography>

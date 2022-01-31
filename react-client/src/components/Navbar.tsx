@@ -1,6 +1,6 @@
 import React from 'react'
 import { AppBar, Box, Button, IconButton, Toolbar, Typography } from '@mui/material'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from './auth/AuthProvider'
 import { Home as HomeIcon } from '@mui/icons-material'
 
@@ -11,19 +11,35 @@ interface NavbarProps {
 const Navbar = (props: NavbarProps) => {
   const navigate = useNavigate()
   const auth = useAuth()
-  const loggedIn = auth?.user !== null
-  const location = useLocation()
-  console.log('location', location)
-  const clickLogin = () => {
-    console.log('clicked button')
-    if (loggedIn) {
-      console.log('calling signout')
-      auth.signout(() => {})
-    } else {
-      console.log('should not hit')
-      navigate('/login')
+  const loginLogoutButton = () => {
+    console.log('rendering login button')
+    if (auth.user !== null) {
+      return (
+        <Button
+          onClick={() => {
+            auth.logout()
+          }}
+          color="secondary"
+          variant="contained"
+        >
+          Logout
+        </Button>
+      )
     }
+    return (
+      <Button
+        onClick={() => {
+          console.log('navigate to login')
+          navigate('/login')
+        }}
+        color="secondary"
+        variant="contained"
+      >
+        Login
+      </Button>
+    )
   }
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -44,11 +60,7 @@ const Navbar = (props: NavbarProps) => {
           <Typography variant="body1" component="div" sx={{ marginRight: 2 }}>
             {props.username}
           </Typography>
-          {!(location.pathname === '/login') && (
-            <Button onClick={clickLogin} color="secondary" variant="contained">
-              {loggedIn ? 'Logout' : 'Login'}
-            </Button>
-          )}
+          {loginLogoutButton()}
         </Toolbar>
       </AppBar>
     </Box>

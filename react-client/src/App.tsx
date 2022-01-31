@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import AuthProvider, { useAuth } from './components/auth/AuthProvider'
-import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-dom'
+import { useLocation, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -12,7 +12,6 @@ import Signup from './pages/Signup'
 const theme = createTheme()
 
 function App() {
-  const auth = useAuth()
   return (
     <AuthProvider>
       <ThemeProvider theme={theme}>
@@ -48,15 +47,20 @@ function App() {
 function RequireAuth({ children }: { children: JSX.Element }) {
   let auth = useAuth()
   let location = useLocation()
-
-  if (!auth.user) {
-    // Redirect them to the /login page, but save the current location they were
-    // trying to go to when they were redirected. This allows us to send them
-    // along to that page after they login, which is a nicer user experience
-    // than dropping them off on the home page.
-    return <Navigate to="/login" state={{ from: location }} replace />
-  }
-
+  useEffect(() => {
+    auth
+      .getSession()
+      .then((session) => {
+        if (!session) {
+          console.error('session no longer active')
+          return <Navigate to="/login" state={{ from: location }} replace />
+        }
+      })
+      .catch((err) => {
+        console.error(err)
+        return <Navigate to="/login" state={{ from: location }} replace />
+      })
+  })
   return children
 }
 
