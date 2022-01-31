@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { fakeAuthProvider } from '../../services/auth/auth'
+import { fakeAuthProvider } from '../../services/auth/Auth'
 
 interface AuthContextType {
   user: any //TODO: set type?

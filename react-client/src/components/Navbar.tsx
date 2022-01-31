@@ -13,14 +13,11 @@ const Navbar = (props: NavbarProps) => {
   const auth = useAuth()
   const loggedIn = auth?.user !== null
   const location = useLocation()
-  console.log('location', location)
+
   const clickLogin = () => {
-    console.log('clicked button')
     if (loggedIn) {
-      console.log('calling signout')
       auth.signout(() => {})
     } else {
-      console.log('should not hit')
       navigate('/login')
     }
   }
