@@ -7,6 +7,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import Login from './pages/Login'
 import Host from './pages/Host'
 import NotFound from './pages/NotFound'
+import Signup from './pages/Signup'
 
 const theme = createTheme()
 
@@ -20,6 +21,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route
               path="/protected"
               element={

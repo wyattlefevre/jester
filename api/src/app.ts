@@ -5,7 +5,7 @@ import loaders from './loaders'
 async function startServer() {
   const app = express()
   loaders({expressApp: app})
-  app.listen(config.port, () => {
+  const server = app.listen(config.port, () => {
     console.log(`
       ################################################
       🛡️  Server listening on port: ${config.port} 🛡️
