@@ -6,11 +6,9 @@ import Navbar from './Navbar'
 
 const Layout = () => {
   const auth = useAuth()
-  const username = auth.getCurrentUser()?.getUsername()
-  console.log('username', username)
   return (
     <div>
-      <Navbar username={username || ''} />
+      <Navbar username={auth.getCurrentUser()?.getUsername() || ''} />
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Outlet />
       </Box>
