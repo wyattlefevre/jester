@@ -13,7 +13,7 @@ const Navbar = (props: NavbarProps) => {
   const auth = useAuth()
   const loginLogoutButton = () => {
     console.log('rendering login button')
-    if (auth.getCurrentUser() !== null) {
+    if (auth.user !== null) {
       return (
         <Button
           onClick={() => {

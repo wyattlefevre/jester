@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Pool from '../../services/auth/UserPool'
 import { CognitoUser, AuthenticationDetails, CognitoUserSession } from 'amazon-cognito-identity-js'
 
@@ -6,12 +6,14 @@ interface AuthContextType {
   authenticate: (Username: string, Password: string) => Promise<CognitoUserSession | null>
   getSession: () => Promise<CognitoUserSession | null>
   logout: () => void
-  getCurrentUser: () => CognitoUser | null
+  user: CognitoUser | null
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!)
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<CognitoUser | null>(Pool.getCurrentUser())
+
   const getSession: () => Promise<CognitoUserSession | null> = async () => {
     return await new Promise((resolve, reject) => {
       const user = Pool.getCurrentUser()
@@ -40,6 +42,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       user.authenticateUser(authDetails, {
         onSuccess: (data) => {
           console.log('onSuccess: ', data)
+          setUser(user)
           resolve(data)
         },
         onFailure: (err) => {
@@ -58,14 +61,11 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const user = Pool.getCurrentUser()
     if (user) {
       user.signOut()
+      setUser(Pool.getCurrentUser())
     }
   }
 
-  const getCurrentUser = () => {
-    return Pool.getCurrentUser()
-  }
-
-  const value = { authenticate, getSession, logout, getCurrentUser }
+  const value = { authenticate, getSession, logout, user }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

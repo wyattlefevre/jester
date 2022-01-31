@@ -8,7 +8,7 @@ const Layout = () => {
   const auth = useAuth()
   return (
     <div>
-      <Navbar username={auth.getCurrentUser()?.getUsername() || ''} />
+      <Navbar username={auth.user?.getUsername() || ''} />
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Outlet />
       </Box>

@@ -18,7 +18,7 @@ const Login = () => {
   const [errMessage, setErrMessage] = useState<string>('')
 
   useEffect(() => {
-    if (auth.getCurrentUser() !== null) {
+    if (auth.user !== null) {
       navigate(from, { replace: true })
     }
   })
@@ -41,7 +41,7 @@ const Login = () => {
         })
         .catch((err) => {
           console.error(err)
-          setErrMessage('Error logging in. Please ensure email and password are correct.')
+          setErrMessage(err.message)
         })
     } else {
       setEmailError(email ? false : true)
