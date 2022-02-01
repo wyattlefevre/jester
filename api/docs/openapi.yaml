@@ -2,7 +2,7 @@ openapi: 3.0.2
 info:
   title: Jester api
   description: The api for Jester, a game platform built by Wyatt LeFevre as a school project
-  version: "0.1"
+  version: '0.1'
 servers:
   - url: https://jester.com/api
 
@@ -36,7 +36,7 @@ paths:
             Authorization:
               schema:
                 type: string
-              description: session token for authentication with aws cognito
+              description: session access token for authentication with aws cognito
   /users/signup:
     post:
       summary: signup and create new user
@@ -52,7 +52,7 @@ paths:
             Authorization:
               schema:
                 type: string
-              description: session token for authentication with aws cognito
+              description: session access token for authentication with aws cognito
         400:
           description: Bad request
           content:
@@ -81,7 +81,7 @@ paths:
           name: authorization
           schema:
             type: string
-          description: authorization token
+          description: access token
       responses:
         200:
           description: authentication successful
@@ -121,13 +121,13 @@ paths:
                 items:
                   type: object
                 example:
-                  - id: "1"
-                    name: "Medevial Battle"
-                    description: "RPS style tournament game"
+                  - id: '1'
+                    name: 'Medevial Battle'
+                    description: 'RPS style tournament game'
                     # could include image or other assets in the future
-                  - id: "2"
-                    name: "Time Machine"
-                    description: "Group superlatives game. Make your best guess about your friends futures!"
+                  - id: '2'
+                    name: 'Time Machine'
+                    description: 'Group superlatives game. Make your best guess about your friends futures!'
   /games/host:
     get:
       summary: request to host a game
@@ -136,7 +136,7 @@ paths:
           name: authorization
           schema:
             type: string
-          description: authorization token
+          description: access token
       responses:
         200:
   /games/{game}/settings:
