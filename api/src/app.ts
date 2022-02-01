@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from 'express';
 import config from './config'
 import loaders from './loaders'
@@ -9,6 +10,7 @@ async function startServer() {
     console.log(`
       ################################################
       🛡️  Server listening on port: ${config.port} 🛡️
+      env var: ${process.env.TEST_VALUE}
       ################################################
     `);
   }).on('error', err => {

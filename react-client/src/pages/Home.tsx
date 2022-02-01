@@ -18,6 +18,7 @@ const Home = () => {
   return (
     <div>
       <Box sx={pageStyles}>
+        <h1>{process.env.REACT_APP_TEST_VALUE}</h1>
         <OutlinedInput placeholder="Room Code" />
         <Button sx={{ marginTop: 1 }} variant="contained">
           Join Game

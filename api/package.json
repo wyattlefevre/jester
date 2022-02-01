@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^15.0.0",
     "express": "^4.17.2",
     "tsconfig-paths": "^3.12.0"
   }
