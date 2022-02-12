@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import AuthProvider, { useAuth } from './components/auth/AuthProvider'
-import { useLocation, Routes, Route, Navigate } from 'react-router-dom'
+import { useLocation, Routes, Route, useNavigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -47,18 +47,19 @@ function App() {
 function RequireAuth({ children }: { children: JSX.Element }) {
   let auth = useAuth()
   let location = useLocation()
+  const navigate = useNavigate()
   useEffect(() => {
     auth
       .getSession()
       .then((session) => {
         if (!session) {
           console.error('session no longer active')
-          return <Navigate to="/login" state={{ from: location }} replace />
+          navigate('/login', { state: { from: location } })
         }
       })
       .catch((err) => {
         console.error(err)
-        return <Navigate to="/login" state={{ from: location }} replace />
+        navigate('/login', { state: { from: location } })
       })
   })
   return children

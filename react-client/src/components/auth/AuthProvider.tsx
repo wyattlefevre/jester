@@ -16,9 +16,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const getSession: () => Promise<CognitoUserSession | null> = async () => {
     return await new Promise((resolve, reject) => {
-      const user = Pool.getCurrentUser()
-      if (user) {
-        user.getSession((err: Error | null, session: CognitoUserSession | null) => {
+      const currentUser = Pool.getCurrentUser()
+      if (currentUser) {
+        currentUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
           if (err) {
             reject()
           } else {
@@ -36,13 +36,13 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     Password: string,
   ) => Promise<CognitoUserSession | null> = async (Username: string, Password: string) => {
     return await new Promise((resolve, reject) => {
-      const user = new CognitoUser({ Username, Pool })
+      const currentUser = new CognitoUser({ Username, Pool })
       const authDetails = new AuthenticationDetails({ Username, Password })
 
-      user.authenticateUser(authDetails, {
+      currentUser.authenticateUser(authDetails, {
         onSuccess: (data) => {
           console.log('onSuccess: ', data)
-          setUser(user)
+          setUser(currentUser)
           resolve(data)
         },
         onFailure: (err) => {
@@ -58,9 +58,9 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const logout = () => {
-    const user = Pool.getCurrentUser()
-    if (user) {
-      user.signOut()
+    const currentUser = Pool.getCurrentUser()
+    if (currentUser) {
+      currentUser.signOut()
       setUser(Pool.getCurrentUser())
     }
   }
