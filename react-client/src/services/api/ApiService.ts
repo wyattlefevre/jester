@@ -2,9 +2,9 @@ import axios, { AxiosRequestConfig } from 'axios'
 import { CognitoUserSession } from 'amazon-cognito-identity-js'
 import UserPool from '../auth/UserPool'
 
-const apiURL = process.env.REACT_APP_API_URL || ''
+export const apiURL = process.env.REACT_APP_API_URL || ''
 
-const config = () => {
+export const config = () => {
   let token: string | undefined
   UserPool.getCurrentUser()?.getSession((err: Error | null, session: CognitoUserSession | null) => {
     if (!err) {
@@ -37,11 +37,9 @@ export const helloApiNoAuth = () => {
   return axios
     .get(apiURL + '/hello')
     .then((res) => {
-      console.log('in res')
       return res.data
     })
     .catch((err) => {
-      console.log('in err')
       console.error(err)
       throw err
     })

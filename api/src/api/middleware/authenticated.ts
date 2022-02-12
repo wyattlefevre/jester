@@ -10,8 +10,6 @@ const cognitoExpress = new CognitoExpress({
 })
 
 const authenticated = (req: Request, res: Response, next) => {
-  console.log('got token:')
-  console.log(req.headers.authorization)
   const accessTokenFromClient = req.headers.authorization
   if (!accessTokenFromClient) return res.status(401).send('Access Token missing from header')
 

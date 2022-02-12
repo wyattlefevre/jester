@@ -11,6 +11,6 @@ export default (app: Router) => {
     const games = GameList.map((game) => {
       return (({ id, name }) => ({ id, name }))(game)
     })
-    return res.json('hello from jester api').status(200)
+    return res.json(games).status(200)
   })
 }

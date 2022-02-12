@@ -1,24 +1,23 @@
-import React, { useEffect } from 'react'
-import { Button } from '@mui/material'
-import { useAuth } from '../components/auth/AuthProvider'
+import React, { useEffect, useState } from 'react'
 import { helloApi, helloApiNoAuth } from '../services/api/ApiService'
+import { getGamesList } from '../services/api/GamesService'
+
+interface GameDescription {
+  id: number
+  name: string
+  description: string
+}
 
 const Host = () => {
-  const auth = useAuth()
-  const clickButton = () => {
-    auth.getSession().then((res) => {
-      console.log(res)
-    })
-  }
+  const [gameDescriptions, setGameDescriptions] = useState<GameDescription[]>([])
 
   useEffect(() => {
-    helloApi()
-      .then((data) => {
-        console.log(data)
+    getGamesList()
+      .then((gameDescriptions) => {
+        setGameDescriptions(gameDescriptions)
       })
       .catch((err) => {
         console.error(err)
-        alert(err.message)
       })
   }, [])
 
@@ -26,7 +25,9 @@ const Host = () => {
     <div>
       <h1>host a game</h1>
       <p>choose from the list</p>
-      <Button onClick={clickButton}>Show current user</Button>
+      {gameDescriptions.map((gameDescription) => (
+        <p>{gameDescription.name}</p>
+      ))}
     </div>
   )
 }
