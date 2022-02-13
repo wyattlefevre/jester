@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import Host from './pages/Host'
 import NotFound from './pages/NotFound'
 import Signup from './pages/Signup'
+import GameSettings from './pages/GameSettings'
 
 const theme = createTheme()
 
@@ -34,6 +35,14 @@ function App() {
               element={
                 <RequireAuth>
                   <Host />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/game/:gameId/settings"
+              element={
+                <RequireAuth>
+                  <GameSettings />
                 </RequireAuth>
               }
             />
