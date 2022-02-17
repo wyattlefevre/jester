@@ -1,18 +1,18 @@
 const GameList: GameInfo[] = [
   {
-    id: 1,
-    name: 'Superlatives',
-    description: 'A fun party game',
+    gameId: 1,
+    gameName: 'Superlatives',
+    gameDescription: 'A fun party game',
   },
   {
-    id: 2,
-    name: 'Medevial RPS',
-    description: 'Battle to the death in this RPS style game',
+    gameId: 2,
+    gameName: 'Medevial RPS',
+    gameDescription: 'Battle to the death in this RPS style game',
   },
 ]
 
 export const getAllGamesInfo = () => {
   return GameList.map((game) => {
-    return { id: game.id, name: game.name, description: game.description }
+    return { id: game.gameId, name: game.gameName, description: game.gameDescription }
   })
 }

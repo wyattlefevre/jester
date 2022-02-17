@@ -18,4 +18,6 @@ class GameManager {
   public getGameByRoomCode(roomCode: string): Game | null {
     return this.games[roomCode]
   }
+
+  public startGame
 }
