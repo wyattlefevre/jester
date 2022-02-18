@@ -14,3 +14,15 @@ export const getGamesList = () => {
       throw err
     })
 }
+
+export const getGameSettingDescriptions = (gameId: number) => {
+  return axios
+    .get(gamesControllerURL + `/games/${gameId}/settings`, config())
+    .then((res) => {
+      return res.data
+    })
+    .catch((err) => {
+      console.error(err)
+      throw err
+    })
+}
