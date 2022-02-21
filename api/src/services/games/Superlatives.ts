@@ -2,7 +2,9 @@ import { GameIds } from '../GameIds'
 import { GameInstance, GameInfo, GameSetting, GameSettingDescription } from '../GameInstance'
 
 class Superlatives implements GameInstance {
-  applySettings: (settings: GameSetting[]) => void
+  applySettings = (settings: GameSetting[]) => {
+    console.log('applying game settings')
+  }
   validateSettings: (settings: GameSetting[]) => boolean
   start: () => boolean
   static gameId: number = GameIds.Superlatives

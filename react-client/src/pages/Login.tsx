@@ -36,7 +36,7 @@ const Login = () => {
       console.log('password', password)
       auth
         .authenticate(email, password)
-        .then((data) => {
+        .then(() => {
           navigate(from, { replace: true })
         })
         .catch((err) => {

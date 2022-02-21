@@ -35,8 +35,6 @@ class RoomManager {
       default:
         throw new GameError('Invalid gameId')
     }
-
-    return '1234'
   }
 
   private generateRoomCode(): string {

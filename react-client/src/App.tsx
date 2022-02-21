@@ -9,6 +9,7 @@ import Host from './pages/Host'
 import NotFound from './pages/NotFound'
 import Signup from './pages/Signup'
 import GameSettings from './pages/GameSettings'
+import GameRoom from './pages/GameRoom'
 
 const theme = createTheme()
 
@@ -43,6 +44,14 @@ function App() {
               element={
                 <RequireAuth>
                   <GameSettings />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/game/play/:roomId"
+              element={
+                <RequireAuth>
+                  <GameRoom />
                 </RequireAuth>
               }
             />

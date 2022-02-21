@@ -1,11 +1,12 @@
 import { Button } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { getGameSettingDescriptions } from '../services/api/GamesService'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getGameSettingDescriptions, openGame } from '../services/api/GamesService'
 import { GameSettingDescription } from '../services/GameSettings'
 
 const GameSettings = () => {
   const { gameId } = useParams()
+  const navigate = useNavigate()
   const [settingDescriptions, setSettingDescriptions] = useState<GameSettingDescription[]>([])
 
   useEffect(() => {
@@ -16,21 +17,33 @@ const GameSettings = () => {
           setSettingDescriptions(gameSettingDescriptions)
         })
         .catch((err) => {
+          console.log('in game settings')
           console.error(err)
         })
   }, [])
 
+  const openLobby = () => {
+    if (gameId)
+      openGame(+gameId, [])
+        .then(({ roomId }) => {
+          navigate(`/game/play/${roomId}`)
+        })
+        .catch((err) => console.error(err))
+  }
+
   return (
     <div>
       <p>{`game settings for id: ${gameId}`}</p>
-      {settingDescriptions.map((description) => (
-        <div>
+      {settingDescriptions.map((description, i) => (
+        <div key={i}>
           <p>name: {description.name}</p>
           <p>type: {description.type}</p>
           <p>default value: {description.defaultValue}</p>
         </div>
       ))}
-      <Button variant="contained">Open Lobby</Button>
+      <Button onClick={openLobby} variant="contained">
+        Open Lobby
+      </Button>
     </div>
   )
 }

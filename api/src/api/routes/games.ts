@@ -13,7 +13,7 @@ export default (app: Router) => {
     return res.json(games).status(200)
   })
 
-  route.get('/games/:gameId/settings', middleware.authenticated, (req: Request, res: Response) => {
+  route.get('/:gameId/settings', middleware.authenticated, (req: Request, res: Response) => {
     const { gameId } = req.params
     const settingDescriptions = getGameSettingDescriptions(+gameId)
     if (settingDescriptions) return res.json(settingDescriptions)
@@ -21,7 +21,7 @@ export default (app: Router) => {
   })
 
   //TODO: will eventually want to limit the number of games a host can have open to 1
-  route.post('/games/open', middleware.authenticated, (req: Request, res: Response) => {
+  route.post('/open', middleware.authenticated, (req: Request, res: Response) => {
     const { gameId, settings } = req.body
     try {
       const roomManager = RoomManager.getInstance()
@@ -31,6 +31,7 @@ export default (app: Router) => {
       if (err instanceof GameError) {
         return res.json({ message: err.message }).sendStatus(400)
       } else {
+        console.error(err)
         throw err
       }
     }
