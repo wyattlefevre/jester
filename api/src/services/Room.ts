@@ -30,10 +30,12 @@ class Room {
       throw new RoomError("Nickname already in use")
     }
     this.players[nickname] = socket
+    socket.join(this.roomCode)
     socket.to(this.host.id).emit("player join", nickname)
   }
   addHost(socket: Socket) {
     this.host = socket
+    this.host.join(this.roomCode)
     this.lobbyOpen = true
   }
   removePlayer(socket: Socket) {}
