@@ -3,6 +3,7 @@ import express from 'express'
 import config from './config'
 import loaders from './loaders'
 import { Server, Socket } from 'socket.io'
+import { loadConnectionHandlers } from './services/SocketManager'
 
 async function startServer() {
   const app = express()
@@ -20,11 +21,14 @@ async function startServer() {
       console.error(err)
       process.exit(1)
     })
-
-  const io = new Server(server)
-  io.on('connection', (socket: Socket) => {
-    console.log('connected with id: ', socket.id)
+  const io = new Server(server, {
+    cors: {
+      origin: ['http://localhost:3000']
+    }
   })
+  loadConnectionHandlers(io)
+  
+
   // TODO: add socket.io
   // https://stackoverflow.com/questions/17696801/express-js-app-listen-vs-server-listen
   // https://socket.io/get-started/chat

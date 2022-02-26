@@ -8,7 +8,8 @@ class Room {
   private playerLimit: number
   private roomCode: string
   private lobbyOpen: boolean
-  constructor(game: GameInstance, playerLimit: number, roomCode: string) {
+  private playerMinimum: number
+  constructor(game: GameInstance, playerLimit: number, roomCode: string, playerMinimum: number) {
     this.game = game
     this.playerLimit = playerLimit
     this.players = new Map<string, Socket>()

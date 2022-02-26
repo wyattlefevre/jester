@@ -18,6 +18,7 @@ class Superlatives implements GameInstance {
     },
   ]
   static playerLimit: number = 10
+  static playerMinimum: number = 3
   static getInfo(): GameInfo {
     return {
       gameId: this.gameId,

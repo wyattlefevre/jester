@@ -26,10 +26,11 @@ class RoomManager {
   public openRoom(gameId: number, gameSettings: GameSetting[]): string {
     switch (gameId) {
       case Superlatives.gameId:
+        
         const game = new Superlatives()
         game.applySettings(gameSettings)
         const roomCode = this.generateRoomCode()
-        const room = new Room(game, Superlatives.playerLimit, roomCode)
+        const room = new Room(game, Superlatives.playerLimit, roomCode, Superlatives.playerMinimum)
         this.rooms[roomCode] = room
         return roomCode
       default:
