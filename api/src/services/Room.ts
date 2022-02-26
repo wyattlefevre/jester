@@ -3,18 +3,21 @@ import { GameInstance } from './GameInstance'
 
 class Room {
   private host: Socket
+  private hostToken: string
   private players: Map<string, Socket> // nickname mapped to player Socket
   private game: GameInstance
   private playerLimit: number
   private roomCode: string
   private lobbyOpen: boolean
   private playerMinimum: number
-  constructor(game: GameInstance, playerLimit: number, roomCode: string, playerMinimum: number) {
+  constructor(game: GameInstance, playerLimit: number, roomCode: string, playerMinimum: number, hostToken: string) {
     this.game = game
     this.playerLimit = playerLimit
     this.players = new Map<string, Socket>()
     this.roomCode = roomCode
     this.lobbyOpen = false // will be set to true once host has connected
+    this.playerMinimum = playerMinimum
+    this.hostToken = hostToken
   }
 
   addPlayer(socket: Socket, nickname: string) {
@@ -34,7 +37,12 @@ class Room {
     socket.join(this.roomCode)
     socket.to(this.host.id).emit("player join", nickname)
   }
-  addHost(socket: Socket) {
+
+  addHost(socket: Socket, token: string) {
+    console.log("adding host:", socket.id)
+    if (this.hostToken != token) {
+      throw new RoomError("invalid token")
+    }
     this.host = socket
     this.host.join(this.roomCode)
     this.lobbyOpen = true
@@ -47,7 +55,12 @@ class Room {
     // TODO: logic to determine if starting a game is allowed
     this.lobbyOpen = false
   }
-  
+  disconnectAllSockets() {
+    this.players.forEach(p => {
+      p.disconnect()
+    });
+    this.host.disconnect()
+  }
 }
 export class RoomError extends Error {
   constructor(message: string) {

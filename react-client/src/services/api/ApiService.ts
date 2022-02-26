@@ -1,17 +1,12 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import { CognitoUserSession } from 'amazon-cognito-identity-js'
 import UserPool from '../auth/UserPool'
+import { getCurrentToken } from '../auth/Token'
 
 export const apiURL = process.env.REACT_APP_API_URL || ''
 
 export const config = () => {
-  let token: string | undefined
-  UserPool.getCurrentUser()?.getSession((err: Error | null, session: CognitoUserSession | null) => {
-    if (!err) {
-      token = session?.getAccessToken().getJwtToken()
-    }
-  })
-
+  const token = getCurrentToken()
   return {
     headers: {
       authorization: token,

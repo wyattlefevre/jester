@@ -14,23 +14,24 @@ class RoomManager {
     }
     return RoomManager.instance
   }
-  private rooms: Map<string, GameInstance>
+  private rooms: Map<string, Room>
   private constructor() {
-    this.rooms = new Map<string, GameInstance>()
+    this.rooms = new Map<string, Room>()
   }
 
-  public getRoomByRoomCode(roomCode: string): GameInstance | null {
+  public getRoomByRoomCode(roomCode: string): Room | null {
     return this.rooms[roomCode]
   }
 
-  public openRoom(gameId: number, gameSettings: GameSetting[]): string {
+  public openRoom(gameId: number, gameSettings: GameSetting[], hostToken: string): string {
     switch (gameId) {
       case Superlatives.gameId:
         
         const game = new Superlatives()
         game.applySettings(gameSettings)
         const roomCode = this.generateRoomCode()
-        const room = new Room(game, Superlatives.playerLimit, roomCode, Superlatives.playerMinimum)
+        const room = new Room(game, Superlatives.playerLimit, roomCode, Superlatives.playerMinimum, hostToken)
+        console.log('opening room with code: ', roomCode)
         this.rooms[roomCode] = room
         return roomCode
       default:

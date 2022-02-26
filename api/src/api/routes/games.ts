@@ -23,9 +23,10 @@ export default (app: Router) => {
   //TODO: will eventually want to limit the number of games a host can have open to 1
   route.post('/open', middleware.authenticated, (req: Request, res: Response) => {
     const { gameId, settings } = req.body
+    const accessTokenFromClient = req.headers.authorization
     try {
       const roomManager = RoomManager.getInstance()
-      const roomId = roomManager.openRoom(gameId, settings)
+      const roomId = roomManager.openRoom(gameId, settings, accessTokenFromClient)
       return res.json({ roomId: roomId }).status(200)
     } catch (err) {
       if (err instanceof GameError) {
