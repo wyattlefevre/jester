@@ -7,7 +7,7 @@ import Room from './Room'
 // uses the singleton design pattern https://refactoring.guru/design-patterns/singleton/typescript/example
 class RoomManager {
   private static instance: RoomManager
-  private static readonly roomCodeLength: number = 4
+  private static readonly roomIdLength: number = 4
   public static getInstance(): RoomManager {
     if (!RoomManager.instance) {
       RoomManager.instance = new RoomManager()
@@ -18,31 +18,10 @@ class RoomManager {
   private constructor() {
     this.rooms = new Map<string, Room>()
   }
-
-  public getRoomByRoomCode(roomCode: string): Room | null {
-    return this.rooms[roomCode]
-  }
-
-  public openRoom(gameId: number, gameSettings: GameSetting[], hostToken: string): string {
-    switch (gameId) {
-      case Superlatives.gameId:
-        
-        const game = new Superlatives()
-        game.applySettings(gameSettings)
-        const roomCode = this.generateRoomCode()
-        const room = new Room(game, Superlatives.playerLimit, roomCode, Superlatives.playerMinimum, hostToken)
-        console.log('opening room with code: ', roomCode)
-        this.rooms[roomCode] = room
-        return roomCode
-      default:
-        throw new GameError('Invalid gameId')
-    }
-  }
-
-  private generateRoomCode(): string {
-    let newCode = this.makeid(RoomManager.roomCodeLength)
+  private generateRoomId(): string {
+    let newCode = this.makeid(RoomManager.roomIdLength)
     while (this.rooms.has(newCode)) {
-      newCode = this.makeid(RoomManager.roomCodeLength)
+      newCode = this.makeid(RoomManager.roomIdLength)
     }
     return newCode
   }
@@ -55,6 +34,38 @@ class RoomManager {
       result += characters.charAt(Math.floor(Math.random() * charactersLength))
     }
     return result
+  }
+
+  public getRoomByRoomId(roomId: string): Room | null {
+    return this.rooms.get(roomId)
+  }
+
+  public openRoom(gameId: number, gameSettings: GameSetting[], hostToken: string): string {
+    switch (gameId) {
+      case Superlatives.gameId:
+        const game = new Superlatives()
+        game.applySettings(gameSettings)
+        const roomId = this.generateRoomId()
+        const room = new Room(
+          game,
+          Superlatives.playerLimit,
+          roomId,
+          Superlatives.playerMinimum,
+          hostToken,
+        )
+        console.log('opening room with code: ', roomId)
+        this.rooms.set(roomId, room)
+        return roomId
+      default:
+        throw new GameError('Invalid gameId')
+    }
+  }
+
+  public isAcceptingPlayers(roomId: string): boolean {
+    if (this.rooms.has(roomId) && this.rooms.get(roomId).isAcceptingNewPlayers()) {
+      return true
+    }
+    return false
   }
 }
 

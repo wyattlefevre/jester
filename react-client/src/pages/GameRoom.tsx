@@ -6,21 +6,41 @@ import { getCurrentToken } from '../services/auth/Token'
 
 const GameRoom = () => {
   const { roomId } = useParams()
-  const [socket, setSocket ]= useState<Socket | null>()
-  // TODO: attempt to connect here
+  const [hostSocket, setHostSocket] = useState<Socket | null>()
+  const [players, setPlayers] = useState<string[]>([])
+  const currentToken = getCurrentToken()
   useEffect(() => {
-    const newSocket = io("http://localhost:8000")
-    newSocket.on("connect", () => {
-      newSocket.emit('join-room-as-host', roomId, getCurrentToken())
-      setSocket(newSocket)
+    if (!roomId || !currentToken) {
+      return
+    }
+    const socket = io('http://localhost:8000')
+    socket.on('connect', () => {
+      socket.emit('join-room-as-host', roomId, currentToken, (message: string) => {
+        console.log(message)
+      })
     })
-    return (() => {
-      newSocket.disconnect()
+    socket.on('error', (msg) => {
+      console.log('error emitted from server')
+      console.error(msg)
     })
-  }, [])
-  
+    socket.on('update-player-list', (playerList: string[]) => {
+      setPlayers(playerList)
+    })
 
-  return <div>GameRoom {roomId}</div>
+    setHostSocket(socket)
+    return () => {
+      socket.disconnect()
+    }
+  }, [])
+
+  return (
+    <div>
+      <h1>GameRoom {roomId}</h1>
+      {players.map((player) => (
+        <h2>{player}</h2>
+      ))}
+    </div>
+  )
 }
 
 export default GameRoom

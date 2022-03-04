@@ -83,7 +83,7 @@ paths:
             schema:
               type: object
               properties:
-                RoomCode:
+                RoomId:
                   type: string
                   example: x74ha
       responses:

@@ -26,7 +26,7 @@ const GameSettings = () => {
     if (gameId)
       openGame(+gameId, [])
         .then(({ roomId }) => {
-          navigate(`/game/play/${roomId}`)
+          navigate(`/game/room/${roomId}`)
         })
         .catch((err) => console.error(err))
   }
