@@ -12,6 +12,6 @@ export default (app: Router) => {
     if (rm.isAcceptingPlayers(roomId)) {
       return res.sendStatus(200)
     }
-    return res.json({ message: 'Room not found' }).sendStatus(404)
+    return res.status(404).send('room not found')
   })
 }

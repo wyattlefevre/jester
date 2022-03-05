@@ -16,26 +16,13 @@ export const config = () => {
 }
 
 export const helloApi = () => {
-  return axios
-    .get(apiURL + '/hello', config())
-    .then((res) => {
-      console.log('in res')
-      return res.data
-    })
-    .catch((err) => {
-      console.log('in err')
-      console.error(err)
-      throw err
-    })
+  return axios.get(apiURL + '/hello', config()).then((res) => {
+    console.log('in res')
+    return res.data
+  })
 }
 export const helloApiNoAuth = () => {
-  return axios
-    .get(apiURL + '/hello')
-    .then((res) => {
-      return res.data
-    })
-    .catch((err) => {
-      console.error(err)
-      throw err
-    })
+  return axios.get(apiURL + '/hello').then((res) => {
+    return res.data
+  })
 }

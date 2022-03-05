@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useTheme } from '@mui/material'
 import { Box, Button, OutlinedInput, Typography, useMediaQuery } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { getRoomStatus } from '../services/api/RoomsService'
 
 const Home = () => {
   const roomCodeLength = 4
@@ -19,7 +20,17 @@ const Home = () => {
     navigate('/host')
   }
 
-  const joinGame = () => {}
+  const joinGame = () => {
+    getRoomStatus(roomCode)
+      .then((data) => {
+        console.log(data)
+        console.log('accepting players')
+      })
+      .catch((err) => {
+        console.error(err)
+        console.log('not accepting players')
+      })
+  }
   return (
     <div>
       <Box sx={pageStyles}>
@@ -30,11 +41,13 @@ const Home = () => {
             if (event.target.value.length <= roomCodeLength)
               setRoomCode(event.target.value.toUpperCase())
           }}
+          inputProps={{ style: { textAlign: 'center', fontSize: '1.3rem' } }}
         />
         <Button
           sx={{ marginTop: 1 }}
           variant="contained"
           disabled={roomCode.length != roomCodeLength}
+          onClick={joinGame}
         >
           Join Game
         </Button>

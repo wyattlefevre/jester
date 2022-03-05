@@ -21,6 +21,7 @@ const Host = () => {
       })
       .catch((err) => {
         console.error(err)
+        console.log('in host')
       })
   }, [])
 

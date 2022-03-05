@@ -77,8 +77,7 @@ function RequireAuth({ children }: { children: JSX.Element }) {
           navigate('/login', { state: { from: location } })
         }
       })
-      .catch((err) => {
-        console.error(err)
+      .catch(() => {
         navigate('/login', { state: { from: location } })
       })
   })

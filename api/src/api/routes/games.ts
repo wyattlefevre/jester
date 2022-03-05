@@ -30,7 +30,7 @@ export default (app: Router) => {
       return res.json({ roomId: roomId }).status(200)
     } catch (err) {
       if (err instanceof GameError) {
-        return res.json({ message: err.message }).sendStatus(400)
+        return res.status(400).send(err.message)
       } else {
         console.error(err)
         throw err
