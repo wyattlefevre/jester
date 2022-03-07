@@ -10,10 +10,10 @@ const GameRoom = () => {
   const [players, setPlayers] = useState<string[]>([])
   const currentToken = getCurrentToken()
   useEffect(() => {
-    if (!roomId || !currentToken) {
+    if (!roomId || !currentToken || !process.env.REACT_APP_API_SOCKET_URL) {
       return
     }
-    const socket = io('http://localhost:8000')
+    const socket = io(process.env.REACT_APP_API_SOCKET_URL)
     socket.on('connect', () => {
       socket.emit('join-room-as-host', roomId, currentToken, (message: string) => {
         console.log(message)

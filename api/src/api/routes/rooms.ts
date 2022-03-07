@@ -7,7 +7,13 @@ export default (app: Router) => {
   app.use('/rooms', route)
 
   route.get('/:roomId/status', (req: Request, res: Response) => {
-    const { roomId, nickname } = req.params
+    const { roomId } = req.params
+    const { nickname } = req.query
+    if (typeof nickname !== 'string') {
+      return res.sendStatus(400)
+    }
+
+    console.log('room status nickname:', nickname)
     const rm = RoomManager.getInstance()
     if (rm.isAcceptingPlayers(roomId)) {
       if (rm.isNicknameAvailable(roomId, nickname)) return res.sendStatus(200)

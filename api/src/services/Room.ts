@@ -34,6 +34,9 @@ class Room {
   }
 
   isNicknameAvailable(nickname: string) {
+    console.log('checking nickname', nickname)
+    console.log('isnicknameavailable: ', !this.players.has(nickname), nickname)
+    console.log(this.players)
     return !this.players.has(nickname)
   }
 
@@ -50,7 +53,7 @@ class Room {
     if (this.players.has(nickname)) {
       throw new RoomError('Nickname already in use')
     }
-    this.players[nickname] = socket
+    this.players.set(nickname, socket)
     socket.join(this.roomId)
     socket.to(this.host.id).emit('player join', nickname)
   }

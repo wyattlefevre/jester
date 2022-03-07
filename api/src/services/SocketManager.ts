@@ -24,7 +24,17 @@ export const loadConnectionHandlers = (
         }
       },
     )
-    socket.on('join-room', (roomId: string, nickname: string) => {})
+    socket.on('join-room', (roomId: string, nickname: string) => {
+      console.log(nickname, 'joining room', roomId)
+      const requestedRoom = roomManager.getRoomByRoomId(roomId)
+      try {
+        requestedRoom.addPlayer(socket, nickname)
+        console.log('successfully added', nickname, 'to room', roomId)
+      } catch (err) {
+        console.error(err)
+        io.to(socket.id).emit('error', err.message)
+      }
+    })
     socket.on('disconnect', () => {
       console.log('disconnected')
     })
