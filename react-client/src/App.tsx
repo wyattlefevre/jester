@@ -48,16 +48,16 @@ function App() {
                 </RequireAuth>
               }
             />
-            <Route
-              path="/game/room/:roomId"
-              element={
-                <RequireAuth>
-                  <GameRoom />
-                </RequireAuth>
-              }
-            />
-            <Route path="/game/play/:roomId" element={<PlayerControls />} />
           </Route>
+          <Route
+            path="/game/room/:roomId"
+            element={
+              <RequireAuth>
+                <GameRoom />
+              </RequireAuth>
+            }
+          />
+          <Route path="/game/play/:roomId" element={<PlayerControls />} />
         </Routes>
       </ThemeProvider>
     </AuthProvider>

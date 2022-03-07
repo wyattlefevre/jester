@@ -24,6 +24,7 @@ export const loadConnectionHandlers = (
         }
       },
     )
+    socket.on('join-room', (roomId: string, nickname: string) => {})
     socket.on('disconnect', () => {
       console.log('disconnected')
     })

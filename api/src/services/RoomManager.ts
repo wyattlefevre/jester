@@ -67,6 +67,13 @@ class RoomManager {
     }
     return false
   }
+
+  public isNicknameAvailable(roomId: string, nickname: string): boolean {
+    if (this.rooms.has(roomId)) {
+      return this.rooms.get(roomId).isNicknameAvailable(nickname)
+    }
+    return false
+  }
 }
 
 export default RoomManager

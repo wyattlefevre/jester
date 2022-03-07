@@ -33,6 +33,10 @@ class Room {
     return false
   }
 
+  isNicknameAvailable(nickname: string) {
+    return !this.players.has(nickname)
+  }
+
   addPlayer(socket: Socket, nickname: string) {
     if (!this.host) {
       throw new RoomError('Host not connected')
