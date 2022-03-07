@@ -15,6 +15,10 @@ const PlayerControls = () => {
     socket.on('connect', () => {
       socket.emit('join-room', roomId, nickname)
     })
+
+    socket.on('prompt', (msg) => {
+      console.log(msg)
+    })
     console.log('play game as', nickname)
   }, [])
   return <div>Play {roomId}</div>
