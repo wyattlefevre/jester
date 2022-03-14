@@ -59,6 +59,10 @@ class Room {
     socket.to(this.host.id).emit('player-join', nickname)
     const io = SocketManager.getInstance().getIO()
     io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
+    socket.on('disconnect', () => {
+      this.players.delete(nickname)
+      io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
+    })
   }
 
   addHost(socket: Socket, token: string) {
