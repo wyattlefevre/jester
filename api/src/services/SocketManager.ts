@@ -10,6 +10,9 @@ export class SocketManager {
       SocketManager.instance.loadConnectionHandlers()
     }
   }
+  public static getInstance() {
+    return SocketManager.instance
+  }
 
   private io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
   private constructor(io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>) {
@@ -55,50 +58,11 @@ export class SocketManager {
     })
   }
 
+  public promptRoom(roomId: string, prompt: string) {
+    this.io.to(roomId).emit(prompt)
+  }
+
   public getIO() {
     return this.io
   }
 }
-
-// export const loadConnectionHandlers = (
-//   io: Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>,
-// ) => {
-//   const roomManager = RoomManager.getInstance()
-//   io.on('connection', (socket: Socket) => {
-//     console.log('connected with id: ', socket.id)
-//     socket.on(
-//       'join-room-as-host',
-//       (roomId: string, token: string, cb: (message: string) => void) => {
-//         console.log('joining room as host')
-//         console.log('request room :', roomId)
-//         const requestedRoom = roomManager.getRoomByRoomId(roomId)
-//         console.log(requestedRoom)
-//         try {
-//           requestedRoom.addHost(socket, token)
-//           socket.join(roomId)
-//           cb('successfully added host')
-//         } catch (err) {
-//           console.error(err)
-//           io.to(socket.id).emit('error', err.message)
-//         }
-//       },
-//     )
-//     socket.on('join-room', (roomId: string, nickname: string) => {
-//       console.log(nickname, 'joining room', roomId)
-//       const requestedRoom = roomManager.getRoomByRoomId(roomId)
-//       try {
-//         requestedRoom.addPlayer(socket, nickname)
-//         socket.join(roomId)
-//         socket.join(`${roomId}-players`)
-//         console.log('successfully added', nickname, 'to room', roomId)
-//       } catch (err) {
-//         console.error(err)
-//         io.to(socket.id).emit('error', err.message)
-//       }
-//     })
-//     socket.on('disconnect', () => {
-//       console.log('disconnected')
-//     })
-//     // join with roomName, nickname, etc.
-//   })
-// }

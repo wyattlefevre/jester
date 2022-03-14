@@ -1,12 +1,17 @@
 import { GameIds } from '../GameIds'
 import { GameInstance, GameInfo, GameSetting, GameSettingDescription } from '../GameInstance'
+import Room from '../Room'
 
 class Superlatives implements GameInstance {
-  applySettings = (settings: GameSetting[]) => {
+  private room: Room
+  applySettings(settings: GameSetting[]) {
     console.log('applying game settings')
   }
   validateSettings: (settings: GameSetting[]) => boolean
-  start: () => boolean
+  start(room: Room) {
+    this.room = room
+  }
+
   static gameId: number = GameIds.Superlatives
   static gameName: string = 'superlatives'
   static gameDescription: string = 'a fun superlatives party game'

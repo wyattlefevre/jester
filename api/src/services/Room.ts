@@ -1,5 +1,6 @@
 import { Socket } from 'socket.io'
 import { GameInstance } from './GameInstance'
+import { SocketManager } from './SocketManager'
 
 class Room {
   private host: Socket
@@ -80,6 +81,11 @@ class Room {
       p.disconnect()
     })
     this.host.disconnect()
+  }
+
+  promptPlayers(prompt: string) {
+    const sm = SocketManager.getInstance()
+    sm.promptRoom(`${this.roomId}-players`, prompt)
   }
 }
 export class RoomError extends Error {

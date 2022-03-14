@@ -1,3 +1,5 @@
+import Room from './Room'
+
 export interface GameInfo {
   gameId: number
   gameName: string
@@ -6,7 +8,7 @@ export interface GameInfo {
 
 export interface GameInstance {
   applySettings: (settings: GameSetting[]) => void
-  start: () => boolean // will need to pass in WS connections or something so it knows who to communicate with. also maybe a callback for when it's finished
+  start: (room: Room) => void // will need to pass in WS connections or something so it knows who to communicate with. also maybe a callback for when it's finished
   validateSettings: (settings: GameSetting[]) => boolean
 }
 
