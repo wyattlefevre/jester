@@ -6,6 +6,7 @@ const PlayerControls = () => {
   const { roomId } = useParams()
 
   const [playerSocket, setPlayerSocket] = useState<Socket | null>()
+  const [prompt, setPrompt] = useState<string>('')
   useEffect(() => {
     const nickname = localStorage.getItem('nickname')
     if (!roomId || !nickname || !process.env.REACT_APP_API_SOCKET_URL) {
@@ -18,10 +19,18 @@ const PlayerControls = () => {
 
     socket.on('prompt', (msg) => {
       console.log(msg)
+      setPrompt(msg)
     })
     console.log('play game as', nickname)
+    setPlayerSocket(socket) // TODO: do I actually need this?
   }, [])
-  return <div>Play {roomId}</div>
+
+  return (
+    <div>
+      <h1>Play {roomId}</h1>
+      {prompt && <h2>{prompt}</h2>}
+    </div>
+  )
 }
 
 export default PlayerControls

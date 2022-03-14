@@ -45,6 +45,7 @@ export class SocketManager {
         try {
           requestedRoom.addPlayer(socket, nickname)
           socket.join(roomId)
+          console.log(`adding ${nickname} to room:${roomId}-players`)
           socket.join(`${roomId}-players`)
           console.log('successfully added', nickname, 'to room', roomId)
         } catch (err) {
@@ -59,7 +60,8 @@ export class SocketManager {
   }
 
   public promptRoom(roomId: string, prompt: string) {
-    this.io.to(roomId).emit(prompt)
+    console.log('prompting room:', roomId)
+    this.io.to(roomId).emit('prompt', prompt)
   }
 
   public getIO() {

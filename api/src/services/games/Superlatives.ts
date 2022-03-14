@@ -12,7 +12,7 @@ class Superlatives implements GameInstance {
     this.room = room
     console.log('superlatives game started!!')
     console.log('prompting all players...')
-    this.room.promptPlayers('hello!')
+    this.room.promptPlayers('Superlatives game started!')
   }
 
   static gameId: number = GameIds.Superlatives

@@ -1,3 +1,4 @@
+import { Button } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { io, Socket } from 'socket.io-client'
@@ -37,12 +38,18 @@ const GameRoom = () => {
     }
   }, [])
 
+  const startGame = () => {
+    console.log('attempting game start')
+    hostSocket?.emit('start-game')
+  }
+
   return (
     <div>
       <h1>GameRoom {roomId}</h1>
       {players.map((player, index) => (
         <h2 key={index}>{player}</h2>
       ))}
+      <Button onClick={startGame}>Start Game</Button>
     </div>
   )
 }
