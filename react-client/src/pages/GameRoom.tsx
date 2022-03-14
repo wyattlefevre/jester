@@ -24,7 +24,11 @@ const GameRoom = () => {
       console.error(msg)
     })
     socket.on('update-player-list', (playerList: string[]) => {
+      console.log('update-player-list')
       setPlayers(playerList)
+    })
+    socket.on('player-join', (nickname: string) => {
+      console.log('player joined', nickname)
     })
 
     setHostSocket(socket)
@@ -36,8 +40,8 @@ const GameRoom = () => {
   return (
     <div>
       <h1>GameRoom {roomId}</h1>
-      {players.map((player) => (
-        <h2>{player}</h2>
+      {players.map((player, index) => (
+        <h2 key={index}>{player}</h2>
       ))}
     </div>
   )

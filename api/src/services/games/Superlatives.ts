@@ -10,6 +10,9 @@ class Superlatives implements GameInstance {
   validateSettings: (settings: GameSetting[]) => boolean
   start(room: Room) {
     this.room = room
+    console.log('superlatives game started!!')
+    console.log('prompting all players...')
+    this.room.promptPlayers('hello!')
   }
 
   static gameId: number = GameIds.Superlatives

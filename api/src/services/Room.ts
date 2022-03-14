@@ -56,7 +56,9 @@ class Room {
     }
     this.players.set(nickname, socket)
     socket.join(this.roomId)
-    socket.to(this.host.id).emit('player join', nickname)
+    socket.to(this.host.id).emit('player-join', nickname)
+    const io = SocketManager.getInstance().getIO()
+    io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
   }
 
   addHost(socket: Socket, token: string) {
@@ -66,6 +68,7 @@ class Room {
     }
     this.host = socket
     this.host.join(this.roomId)
+    this.addHostListeners(this.host)
     this.lobbyOpen = true
   }
   removePlayer(socket: Socket) {}
@@ -86,6 +89,17 @@ class Room {
   promptPlayers(prompt: string) {
     const sm = SocketManager.getInstance()
     sm.promptRoom(`${this.roomId}-players`, prompt)
+  }
+
+  private addHostListeners(hostSocket: Socket) {
+    hostSocket.on('start-game', () => {
+      console.log('starting game!')
+      this.game.start(this)
+    })
+  }
+
+  private getPlayerNames(): string[] {
+    return Array.from(this.players.keys())
   }
 }
 export class RoomError extends Error {
