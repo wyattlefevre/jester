@@ -1,11 +1,12 @@
 import { Socket } from 'socket.io'
 import { GameInstance } from './GameInstance'
+import { Player } from './Player'
 import { SocketManager } from './SocketManager'
 
 class Room {
   private host: Socket
   private hostToken: string
-  private players: Map<string, Socket> // nickname mapped to player Socket
+  private players: Map<string, Player> // nickname mapped to player Socket
   private game: GameInstance
   private playerLimit: number
   private roomId: string
@@ -20,7 +21,7 @@ class Room {
   ) {
     this.game = game
     this.playerLimit = playerLimit
-    this.players = new Map<string, Socket>()
+    this.players = new Map<string, Player>()
     this.roomId = roomId
     this.lobbyOpen = false // will be set to true once host has connected
     this.playerMinimum = playerMinimum
@@ -54,15 +55,14 @@ class Room {
     if (this.players.has(nickname)) {
       throw new RoomError('Nickname already in use')
     }
-    this.players.set(nickname, socket)
-    socket.join(this.roomId)
-    socket.to(this.host.id).emit('player-join', nickname)
-    const io = SocketManager.getInstance().getIO()
-    io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
-    socket.on('disconnect', () => {
+    const onPlayerDisconnect = () => {
       this.players.delete(nickname)
       io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
-    })
+    }
+    const player = new Player(nickname, socket, this.roomId, onPlayerDisconnect)
+    this.players.set(nickname, player)
+    const io = SocketManager.getInstance().getIO()
+    io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
   }
 
   addHost(socket: Socket, token: string) {
@@ -85,14 +85,14 @@ class Room {
   }
   disconnectAllSockets() {
     this.players.forEach((p) => {
-      p.disconnect()
+      p.getSocket().disconnect()
     })
     this.host.disconnect()
   }
 
-  promptPlayers(prompt: string) {
+  promptPlayers(promptId: string, prompt: string, responseOptions: string[]) {
     const sm = SocketManager.getInstance()
-    sm.promptRoom(`${this.roomId}-players`, prompt)
+    sm.promptRoom(`${this.roomId}-players`, promptId, prompt, responseOptions)
   }
 
   private addHostListeners(hostSocket: Socket) {

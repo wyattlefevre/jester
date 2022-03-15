@@ -59,9 +59,9 @@ export class SocketManager {
     })
   }
 
-  public promptRoom(roomId: string, prompt: string) {
+  public promptRoom(roomId: string, promptId: string, prompt: string, responseOptions: string[]) {
     console.log('prompting room:', roomId)
-    this.io.to(roomId).emit('prompt', prompt)
+    this.io.to(roomId).emit('prompt', promptId, prompt, responseOptions) // TODO: block responses that aren't part of options
   }
 
   public getIO() {
