@@ -13,7 +13,7 @@ export interface PromptRules {
 
 export interface PromptResponse {
   promptId: string
-  responses: string[]
+  response: string
 }
 
 export enum PromptType {

@@ -6,7 +6,7 @@ import { useAuth } from '../components/auth/AuthProvider'
 import { getCurrentToken } from '../services/auth/Token'
 
 const GameRoom = () => {
-  const { roomId } = useParams()
+  const { roomId, gameId } = useParams()
   const [hostSocket, setHostSocket] = useState<Socket | null>()
   const [message, setMessage] = useState<string | null>('message example')
   const [players, setPlayers] = useState<string[]>([])

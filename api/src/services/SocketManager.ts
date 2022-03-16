@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
+import { MessageChannel } from 'worker_threads'
 import { Prompt } from './Prompt'
 import RoomManager from './RoomManager'
 
@@ -21,10 +22,10 @@ export class SocketManager {
   }
   private loadConnectionHandlers() {
     const roomManager = RoomManager.getInstance()
-    this.io.on('connection', (socket: Socket) => {
+    this.io.on(Events.Connection, (socket: Socket) => {
       console.log('connected with id: ', socket.id)
       socket.on(
-        'join-room-as-host',
+        Events.JoinRoomAsHost,
         (roomId: string, token: string, cb: (message: string) => void) => {
           console.log('joining room as host')
           console.log('request room :', roomId)
@@ -40,7 +41,7 @@ export class SocketManager {
           }
         },
       )
-      socket.on('join-room', (roomId: string, nickname: string) => {
+      socket.on(Events.JoinRoom, (roomId: string, nickname: string) => {
         console.log(nickname, 'joining room', roomId)
         const requestedRoom = roomManager.getRoomByRoomId(roomId)
         try {
@@ -54,18 +55,31 @@ export class SocketManager {
           this.io.to(socket.id).emit('error', err.message)
         }
       })
-      socket.on('disconnect', () => {
+      socket.on(Events.Disconnect, () => {
         console.log('disconnected')
       })
     })
   }
 
-  public promptRoom(roomId: string, prompt: Prompt) {
-    console.log('prompting room:', roomId)
-    this.io.to(roomId).emit('prompt', prompt) // TODO: block responses that aren't part of options
+  public emit(to: string, event: Events, ...data: any[]) {
+    this.io.to(to).emit(event, data)
   }
 
-  public getIO() {
-    return this.io
+  public sendError(to: string, message: string) {
+    this.io.to(to).emit(Events.Error, message)
   }
+}
+
+export enum Events {
+  Connection = 'connection',
+  Disconnect = 'disconnect',
+  JoinRoom = 'join-room',
+  JoinRoomAsHost = 'join-room-as-host',
+  UpdatePlayerList = 'update-player-list',
+  StartGame = 'start-game',
+  NextPhase = 'next-phase',
+  Prompt = 'prompt',
+  PromptResponse = 'prompt-response',
+  Error = 'error',
+  Message = 'message',
 }

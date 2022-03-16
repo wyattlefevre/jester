@@ -1,6 +1,7 @@
 import { GameInstance, GameSetting } from './GameInstance'
 import { Superlatives } from './games'
 import { GameError } from './GameService'
+import PromptManager from './PromptManager'
 import Room from './Room'
 
 // manages active rooms
@@ -28,7 +29,7 @@ class RoomManager {
 
   private makeid(length) {
     var result = ''
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    var characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ123456789'
     var charactersLength = characters.length
     for (var i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength))
@@ -43,15 +44,18 @@ class RoomManager {
   public openRoom(gameId: number, gameSettings: GameSetting[], hostToken: string): string {
     switch (gameId) {
       case Superlatives.gameId:
+        const roomId = this.generateRoomId()
+        const promptManager = new PromptManager(roomId)
         const game = new Superlatives()
         game.applySettings(gameSettings)
-        const roomId = this.generateRoomId()
+        game.setPromptManager(promptManager)
         const room = new Room(
           game,
           Superlatives.playerLimit,
           roomId,
           Superlatives.playerMinimum,
           hostToken,
+          promptManager,
         )
         console.log('opening room with code: ', roomId)
         this.rooms.set(roomId, room)

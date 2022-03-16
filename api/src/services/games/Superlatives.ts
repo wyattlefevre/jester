@@ -1,28 +1,58 @@
 import { GameIds } from '../GameIds'
 import { GameInstance, GameInfo, GameSetting, GameSettingDescription } from '../GameInstance'
-import { PromptType } from '../Prompt'
+import HostMessage, { HostMessageSizes } from '../HostMessage'
+import { Prompt, PromptResponse, PromptType } from '../Prompt'
+import PromptManager from '../PromptManager'
 import Room from '../Room'
 
-class Superlatives implements GameInstance {
+export default class Superlatives implements GameInstance {
+  private NAMES_PER_PLAYER = 3
   private room: Room
+  private promptManager: PromptManager
+  private namesList: string[]
   applySettings(settings: GameSetting[]) {
     console.log('applying game settings')
   }
   validateSettings: (settings: GameSetting[]) => boolean
-  start(room: Room) {
+  start(room: Room, onGameEnd: () => void) {
     this.room = room
+    this.namesList = []
     console.log('superlatives game started!!')
-    console.log('prompting all players...')
-    this.room.promptPlayers({
-      promptId: '1',
-      prompt: 'ready to play?',
-      rules: {
-        type: PromptType.Selection,
-        limit: 1,
-        responseOptions: ['yes', 'no'],
-      },
-    })
   }
+  nextPhase() {}
+  setPromptManager(promptManager: PromptManager) {
+    this.promptManager = promptManager
+  }
+
+  private nameGenerationPhase = () => {
+    const nameGenerationPrompt: Prompt = {
+      promptId: 'name-generation',
+      prompt: 'Add names to the pool',
+      rules: {
+        type: PromptType.FreeResponse,
+        limit: this.NAMES_PER_PLAYER,
+        responseOptions: [],
+      },
+    }
+    this.promptManager.openPrompt(
+      nameGenerationPrompt.promptId,
+      nameGenerationPrompt.rules,
+      (nickname: string, value: string) => {
+        this.namesList.push(value)
+        const nameListMessages: HostMessage[] = this.namesList.map((name) => {
+          return { text: name, size: HostMessageSizes.small }
+        })
+        this.room.messageHost([
+          { text: 'Names', size: HostMessageSizes.large },
+          ...nameListMessages,
+        ])
+      },
+    )
+  }
+  private superlativeGenerationPhase = () => {}
+  private votingPhase = () => {}
+
+  playerResponse(nickname: string, response: PromptResponse) {}
 
   static gameId: number = GameIds.Superlatives
   static gameName: string = 'superlatives'
@@ -45,4 +75,4 @@ class Superlatives implements GameInstance {
   }
 }
 
-export default Superlatives
+export enum SuperlativesEvents {}

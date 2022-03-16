@@ -1,8 +1,10 @@
 import { Socket } from 'socket.io'
 import { GameInstance } from './GameInstance'
+import HostMessage from './HostMessage'
 import { Player } from './Player'
 import { Prompt, PromptResponse, PromptRules, PromptType } from './Prompt'
-import { SocketManager } from './SocketManager'
+import PromptManager from './PromptManager'
+import { Events, SocketManager } from './SocketManager'
 
 class Room {
   private host: Socket
@@ -13,7 +15,7 @@ class Room {
   private roomId: string
   private lobbyOpen: boolean
   private playerMinimum: number
-  private openPrompts: Map<string, PromptRules> // promptId's that are currently answerable (usually just one)
+  private promptManager: PromptManager
 
   constructor(
     game: GameInstance,
@@ -21,6 +23,7 @@ class Room {
     roomId: string,
     playerMinimum: number,
     hostToken: string,
+    promptManager: PromptManager,
   ) {
     this.game = game
     this.playerLimit = playerLimit
@@ -29,7 +32,7 @@ class Room {
     this.lobbyOpen = false // will be set to true once host has connected
     this.playerMinimum = playerMinimum
     this.hostToken = hostToken
-    this.openPrompts = new Map<string, PromptRules>()
+    this.promptManager = promptManager
   }
 
   isAcceptingNewPlayers(): boolean {
@@ -62,10 +65,10 @@ class Room {
 
     const player = new Player(nickname, socket, this.roomId)
     this.players.set(nickname, player)
-    this.addPlayerSocketListeners(player)
+    this.addPlayertListeners(player)
 
-    const io = SocketManager.getInstance().getIO()
-    io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
+    const sm = SocketManager.getInstance()
+    sm.emit(this.host.id, Events.UpdatePlayerList, this.getPlayerNames())
   }
 
   addHost(socket: Socket, token: string) {
@@ -81,8 +84,8 @@ class Room {
 
   removePlayer(nickname: string) {
     this.players.delete(nickname)
-    const io = SocketManager.getInstance().getIO()
-    io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
+    const sm = SocketManager.getInstance()
+    sm.emit(this.host.id, Events.UpdatePlayerList, this.getPlayerNames())
   }
 
   getRoomId(): string {
@@ -93,12 +96,12 @@ class Room {
     if (this.players.size >= this.playerMinimum && this.players.size <= this.playerLimit) {
       this.lobbyOpen = false
       console.log('starting game')
-      this.game.start(this)
+      this.game.start(this, this.onGameEnd)
     } else {
-      const io = SocketManager.getInstance().getIO()
       const message =
         this.players.size >= this.playerMinimum ? 'too many players' : 'not enough players'
-      io.to(this.host.id).emit('error', `could not start game ${message}`)
+      const sm = SocketManager.getInstance()
+      sm.sendError(this.host.id, message)
     }
   }
 
@@ -109,52 +112,50 @@ class Room {
     this.host.disconnect()
   }
 
-  promptPlayers(prompt: Prompt) {
+  emitToPlayers(e: Events, ...data: any) {
     const sm = SocketManager.getInstance()
-    sm.promptRoom(`${this.roomId}-players`, prompt)
+    sm.emit(`${this.roomId}-players`, e, data)
+  }
+
+  messageHost(messages: HostMessage[]) {
+    const sm = SocketManager.getInstance()
+    sm.emit(this.host.id, Events.Message, messages)
+  }
+
+  promptPlayers(prompt: Prompt) {
+    this.emitToPlayers(Events.Prompt, prompt)
+  }
+
+  private onGameEnd = () => {
+    console.log('game over')
   }
 
   private addHostListeners(hostSocket: Socket) {
-    hostSocket.on('start-game', () => {
+    hostSocket.on(Events.StartGame, () => {
       this.startGame()
     })
   }
 
-  private addPlayerSocketListeners(player: Player) {
+  private addPlayertListeners(player: Player) {
     const playerSocket = player.getSocket()
     playerSocket.join(this.roomId)
-    playerSocket.on('disconnect', () => {
+    playerSocket.on(Events.Disconnect, () => {
       this.removePlayer(player.getNickname())
     })
-    playerSocket.on('prompt-response', (PromptResponse) => {
-      if (this.isValidPromptResponse(PromptResponse)) {
-        player.addPromptResponse(PromptResponse)
+    playerSocket.on(Events.PromptResponse, (response: PromptResponse) => {
+      if (!this.promptManager.handlePlayerPromptResponse(player.getNickname(), response)) {
+        this.sendPlayerError('response not saved', player)
       }
     })
+  }
+
+  private sendPlayerError(message: string, player: Player) {
+    const sm = SocketManager.getInstance()
+    sm.sendError(player.getSocket().id, message)
   }
 
   private getPlayerNames(): string[] {
     return Array.from(this.players.keys())
-  }
-
-  private isValidPromptResponse(response: PromptResponse): boolean {
-    if (this.openPrompts.has(response.promptId)) {
-      const rules = this.openPrompts.get(response.promptId)
-      if (response.responses.length <= rules.limit && response.responses.length > 0) {
-        if (rules.type === PromptType.Selection) {
-          let valid = true
-          response.responses.forEach((res) => {
-            if (!rules.responseOptions.includes(res)) {
-              valid = false
-            }
-          })
-          return valid
-        } else if (rules.type === PromptType.FreeResponse) {
-          return true
-        }
-      }
-    }
-    return false
   }
 }
 export class RoomError extends Error {
