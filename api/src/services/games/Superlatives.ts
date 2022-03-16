@@ -10,6 +10,7 @@ export default class Superlatives implements GameInstance {
   private room: Room
   private promptManager: PromptManager
   private namesList: string[]
+  private currentPhase: number = 0
   applySettings(settings: GameSetting[]) {
     console.log('applying game settings')
   }
@@ -17,9 +18,19 @@ export default class Superlatives implements GameInstance {
   start(room: Room, onGameEnd: () => void) {
     this.room = room
     this.namesList = []
+    this.currentPhase = 0
     console.log('superlatives game started!!')
+    this.executeCurrentPhase()
   }
-  nextPhase() {}
+
+  nextPhase() {
+    this.currentPhase++
+    this.executeCurrentPhase()
+  }
+  executeCurrentPhase() {
+    this.phases[this.currentPhase]()
+  }
+
   setPromptManager(promptManager: PromptManager) {
     this.promptManager = promptManager
   }
@@ -51,8 +62,13 @@ export default class Superlatives implements GameInstance {
   }
   private superlativeGenerationPhase = () => {}
   private votingPhase = () => {}
-
-  playerResponse(nickname: string, response: PromptResponse) {}
+  private resultsPhase = () => {}
+  private readonly phases = [
+    this.nameGenerationPhase,
+    this.superlativeGenerationPhase,
+    this.votingPhase,
+    this.resultsPhase,
+  ]
 
   static gameId: number = GameIds.Superlatives
   static gameName: string = 'superlatives'

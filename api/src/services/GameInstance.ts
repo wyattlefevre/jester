@@ -12,7 +12,6 @@ export interface GameInstance {
   applySettings: (settings: GameSetting[]) => void
   start: (room: Room, onGameEnd: () => void) => void // will need to pass in WS connections or something so it knows who to communicate with. also maybe a callback for when it's finished
   nextPhase: () => void
-  playerResponse: (nickname: string, response: PromptResponse) => void
   validateSettings: (settings: GameSetting[]) => boolean
   setPromptManager: (promptManager: PromptManager) => void
 }
