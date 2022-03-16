@@ -1,4 +1,4 @@
-import { Button } from '@mui/material'
+import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { io, Socket } from 'socket.io-client'
@@ -8,6 +8,7 @@ import { getCurrentToken } from '../services/auth/Token'
 const GameRoom = () => {
   const { roomId } = useParams()
   const [hostSocket, setHostSocket] = useState<Socket | null>()
+  const [message, setMessage] = useState<string | null>('message example')
   const [players, setPlayers] = useState<string[]>([])
   const currentToken = getCurrentToken()
   useEffect(() => {
@@ -32,6 +33,10 @@ const GameRoom = () => {
       console.log('player joined', nickname)
     })
 
+    socket.on('message', (msg) => {
+      setMessage(msg)
+    })
+
     setHostSocket(socket)
     return () => {
       socket.disconnect()
@@ -45,11 +50,30 @@ const GameRoom = () => {
 
   return (
     <div>
-      <h1>GameRoom {roomId}</h1>
-      {players.map((player, index) => (
-        <h2 key={index}>{player}</h2>
-      ))}
-      <Button onClick={startGame}>Start Game</Button>
+      <AppBar position="static">
+        <Toolbar sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Typography textAlign="center" sx={{ fontSize: '2.5rem' }}>
+            Room - {roomId}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          backgroundColor: '#292929',
+          color: 'white',
+        }}
+      >
+        {players.map((player, index) => (
+          <Typography sx={{ mx: 2 }} key={index}>
+            {player}
+          </Typography>
+        ))}
+      </Box>
+      <Button variant="contained" onClick={startGame}>
+        Start Game
+      </Button>
     </div>
   )
 }

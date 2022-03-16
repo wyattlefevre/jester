@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
+import { Prompt } from './Prompt'
 import RoomManager from './RoomManager'
 
 export class SocketManager {
@@ -59,9 +60,9 @@ export class SocketManager {
     })
   }
 
-  public promptRoom(roomId: string, promptId: string, prompt: string, responseOptions: string[]) {
+  public promptRoom(roomId: string, prompt: Prompt) {
     console.log('prompting room:', roomId)
-    this.io.to(roomId).emit('prompt', promptId, prompt, responseOptions) // TODO: block responses that aren't part of options
+    this.io.to(roomId).emit('prompt', prompt) // TODO: block responses that aren't part of options
   }
 
   public getIO() {

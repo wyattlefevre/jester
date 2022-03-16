@@ -1,5 +1,6 @@
 import { GameIds } from '../GameIds'
 import { GameInstance, GameInfo, GameSetting, GameSettingDescription } from '../GameInstance'
+import { PromptType } from '../Prompt'
 import Room from '../Room'
 
 class Superlatives implements GameInstance {
@@ -12,7 +13,15 @@ class Superlatives implements GameInstance {
     this.room = room
     console.log('superlatives game started!!')
     console.log('prompting all players...')
-    this.room.promptPlayers('initial', 'Superlatives game started! ready to play?', ['yes', 'no'])
+    this.room.promptPlayers({
+      promptId: '1',
+      prompt: 'ready to play?',
+      rules: {
+        type: PromptType.Selection,
+        limit: 1,
+        responseOptions: ['yes', 'no'],
+      },
+    })
   }
 
   static gameId: number = GameIds.Superlatives

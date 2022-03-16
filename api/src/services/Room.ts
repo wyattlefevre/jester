@@ -1,6 +1,7 @@
 import { Socket } from 'socket.io'
 import { GameInstance } from './GameInstance'
 import { Player } from './Player'
+import { Prompt, PromptResponse, PromptRules, PromptType } from './Prompt'
 import { SocketManager } from './SocketManager'
 
 class Room {
@@ -12,6 +13,8 @@ class Room {
   private roomId: string
   private lobbyOpen: boolean
   private playerMinimum: number
+  private openPrompts: Map<string, PromptRules> // promptId's that are currently answerable (usually just one)
+
   constructor(
     game: GameInstance,
     playerLimit: number,
@@ -26,6 +29,7 @@ class Room {
     this.lobbyOpen = false // will be set to true once host has connected
     this.playerMinimum = playerMinimum
     this.hostToken = hostToken
+    this.openPrompts = new Map<string, PromptRules>()
   }
 
   isAcceptingNewPlayers(): boolean {
@@ -55,12 +59,11 @@ class Room {
     if (this.players.has(nickname)) {
       throw new RoomError('Nickname already in use')
     }
-    const onPlayerDisconnect = () => {
-      this.players.delete(nickname)
-      io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
-    }
-    const player = new Player(nickname, socket, this.roomId, onPlayerDisconnect)
+
+    const player = new Player(nickname, socket, this.roomId)
     this.players.set(nickname, player)
+    this.addPlayerSocketListeners(player)
+
     const io = SocketManager.getInstance().getIO()
     io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
   }
@@ -75,14 +78,30 @@ class Room {
     this.addHostListeners(this.host)
     this.lobbyOpen = true
   }
-  removePlayer(socket: Socket) {}
+
+  removePlayer(nickname: string) {
+    this.players.delete(nickname)
+    const io = SocketManager.getInstance().getIO()
+    io.to(this.host.id).emit('update-player-list', this.getPlayerNames())
+  }
+
   getRoomId(): string {
     return this.roomId
   }
+
   startGame() {
-    // TODO: logic to determine if starting a game is allowed
-    this.lobbyOpen = false
+    if (this.players.size >= this.playerMinimum && this.players.size <= this.playerLimit) {
+      this.lobbyOpen = false
+      console.log('starting game')
+      this.game.start(this)
+    } else {
+      const io = SocketManager.getInstance().getIO()
+      const message =
+        this.players.size >= this.playerMinimum ? 'too many players' : 'not enough players'
+      io.to(this.host.id).emit('error', `could not start game ${message}`)
+    }
   }
+
   disconnectAllSockets() {
     this.players.forEach((p) => {
       p.getSocket().disconnect()
@@ -90,20 +109,52 @@ class Room {
     this.host.disconnect()
   }
 
-  promptPlayers(promptId: string, prompt: string, responseOptions: string[]) {
+  promptPlayers(prompt: Prompt) {
     const sm = SocketManager.getInstance()
-    sm.promptRoom(`${this.roomId}-players`, promptId, prompt, responseOptions)
+    sm.promptRoom(`${this.roomId}-players`, prompt)
   }
 
   private addHostListeners(hostSocket: Socket) {
     hostSocket.on('start-game', () => {
-      console.log('starting game!')
-      this.game.start(this)
+      this.startGame()
+    })
+  }
+
+  private addPlayerSocketListeners(player: Player) {
+    const playerSocket = player.getSocket()
+    playerSocket.join(this.roomId)
+    playerSocket.on('disconnect', () => {
+      this.removePlayer(player.getNickname())
+    })
+    playerSocket.on('prompt-response', (PromptResponse) => {
+      if (this.isValidPromptResponse(PromptResponse)) {
+        player.addPromptResponse(PromptResponse)
+      }
     })
   }
 
   private getPlayerNames(): string[] {
     return Array.from(this.players.keys())
+  }
+
+  private isValidPromptResponse(response: PromptResponse): boolean {
+    if (this.openPrompts.has(response.promptId)) {
+      const rules = this.openPrompts.get(response.promptId)
+      if (response.responses.length <= rules.limit && response.responses.length > 0) {
+        if (rules.type === PromptType.Selection) {
+          let valid = true
+          response.responses.forEach((res) => {
+            if (!rules.responseOptions.includes(res)) {
+              valid = false
+            }
+          })
+          return valid
+        } else if (rules.type === PromptType.FreeResponse) {
+          return true
+        }
+      }
+    }
+    return false
   }
 }
 export class RoomError extends Error {
