@@ -59,6 +59,7 @@ export default class Superlatives implements GameInstance {
         ])
       },
     )
+    this.room.promptPlayers(nameGenerationPrompt)
   }
   private superlativeGenerationPhase = () => {}
   private votingPhase = () => {}

@@ -12,6 +12,7 @@ export default class PromptManager {
     this.roomId = roomId
     this.openPrompts = new Map<string, PromptRules>()
     this.playerResponseCounts = new Map<string, Map<string, number>>()
+    this.promptCallbacks = new Map<string, (promptId: string, playerNickname: string) => void>()
   }
 
   handlePlayerPromptResponse(nickname: string, response: PromptResponse): boolean {

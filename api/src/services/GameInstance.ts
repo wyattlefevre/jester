@@ -1,4 +1,3 @@
-import { PromptResponse } from './Prompt'
 import PromptManager from './PromptManager'
 import Room from './Room'
 

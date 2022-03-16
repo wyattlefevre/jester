@@ -61,8 +61,8 @@ export class SocketManager {
     })
   }
 
-  public emit(to: string, event: Events, ...data: any[]) {
-    this.io.to(to).emit(event, data)
+  public emit(to: string, event: Events, ...data: any) {
+    this.io.to(to).emit(event, ...data)
   }
 
   public sendError(to: string, message: string) {

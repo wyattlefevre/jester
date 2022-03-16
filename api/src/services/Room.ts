@@ -114,7 +114,7 @@ class Room {
 
   emitToPlayers(e: Events, ...data: any) {
     const sm = SocketManager.getInstance()
-    sm.emit(`${this.roomId}-players`, e, data)
+    sm.emit(`${this.roomId}-players`, e, ...data)
   }
 
   messageHost(messages: HostMessage[]) {

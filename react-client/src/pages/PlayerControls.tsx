@@ -28,6 +28,7 @@ const PlayerControls = () => {
     })
 
     socket.on('prompt', (prompt: Prompt) => {
+      console.log('received prompt', prompt)
       console.log('prompt', prompt)
       setPrompt(prompt)
     })
@@ -38,6 +39,7 @@ const PlayerControls = () => {
   }, [])
 
   const renderResponseOptions = () => {
+    console.log('render response options', prompt)
     if (prompt && prompt.rules.type === PromptType.Selection) {
       const buttonColor = randomColor()
       return (
