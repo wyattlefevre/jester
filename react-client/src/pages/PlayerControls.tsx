@@ -51,6 +51,7 @@ const PlayerControls = () => {
       response: customResponse,
     }
     playerSocket?.emit(ClientEvents.PromptResponse, promptResponse)
+    setCustomResponse('')
   }
 
   const renderResponseOptions = () => {
