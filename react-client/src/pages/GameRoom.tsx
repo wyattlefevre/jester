@@ -2,6 +2,7 @@ import { AppBar, Box, Button, Toolbar, Typography } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { io, Socket } from 'socket.io-client'
+import HostMessages from '../components/HostMessages'
 import { getCurrentToken } from '../services/auth/Token'
 import HostMessage from '../services/HostMessage'
 import { ClientEvents } from '../services/SocketEvents'
@@ -11,6 +12,7 @@ const GameRoom = () => {
   const [hostSocket, setHostSocket] = useState<Socket | null>()
   const [messages, setMessages] = useState<HostMessage[]>([])
   const [players, setPlayers] = useState<string[]>([])
+  const [gameStarted, setGameStarted] = useState<boolean>(false)
   const currentToken = getCurrentToken()
   console.log('players', players)
   useEffect(() => {
@@ -48,6 +50,11 @@ const GameRoom = () => {
   const startGame = () => {
     console.log('attempting game start')
     hostSocket?.emit(ClientEvents.StartGame)
+    setGameStarted(true)
+  }
+
+  const next = () => {
+    console.log('next')
   }
 
   return (
@@ -68,14 +75,25 @@ const GameRoom = () => {
         }}
       >
         {players.map((player, index) => (
-          <Typography sx={{ mx: 3 }} key={index}>
+          <Typography sx={{ mx: 2 }} key={index}>
             {player}
           </Typography>
         ))}
       </Box>
-      <Button variant="contained" onClick={startGame}>
-        Start Game
-      </Button>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <HostMessages messages={messages} />
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        {gameStarted ? (
+          <Button variant="contained" onClick={startGame}>
+            Next
+          </Button>
+        ) : (
+          <Button variant="contained" onClick={startGame} disabled={players.length < 3}>
+            Start Game
+          </Button>
+        )}
+      </Box>
     </div>
   )
 }

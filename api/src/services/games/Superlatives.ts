@@ -36,6 +36,10 @@ export default class Superlatives implements GameInstance {
   }
 
   private nameGenerationPhase = () => {
+    this.room.messageHost([
+      { text: 'Names', size: HostMessageSizes.large },
+      { text: 'example name', size: HostMessageSizes.small },
+    ])
     const nameGenerationPrompt: Prompt = {
       promptId: 'name-generation',
       prompt: 'Add names to the pool',
@@ -61,7 +65,10 @@ export default class Superlatives implements GameInstance {
     )
     this.room.promptPlayers(nameGenerationPrompt)
   }
-  private superlativeGenerationPhase = () => {}
+  private superlativeGenerationPhase = () => {
+    //close prompt from last phase
+    //open prompt of current phase
+  }
   private votingPhase = () => {}
   private resultsPhase = () => {}
   private readonly phases = [

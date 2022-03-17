@@ -3,7 +3,7 @@ import { SocketManager } from './SocketManager'
 
 export default class PromptManager {
   // private promptResponses: Map<string, Map<string, PromptResponse[]>> //promptId -> nickname -> prompt responses
-  private promptCallbacks: Map<string, (promptId: string, playerNickname: string) => void> //map prompt id to success callback
+  private promptCallbacks: Map<string, (playerNickname: string, value: string) => void> //map prompt id to success callback
   private playerResponseCounts: Map<string, Map<string, number>> //map player nickname -> promptId -> number of responses
   private roomId: string
   private openPrompts: Map<string, PromptRules> // promptId's that are currently answerable (usually just one)
@@ -26,7 +26,7 @@ export default class PromptManager {
     ) {
       this.incrementPlayerResponseCount(nickname, response.promptId)
       const successCallback = this.promptCallbacks.get(response.promptId)
-      successCallback(response.promptId, nickname)
+      successCallback(nickname, response.response)
       return true
     }
     return false
