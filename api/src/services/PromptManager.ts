@@ -7,6 +7,7 @@ export default class PromptManager {
   private playerResponseCounts: Map<string, Map<string, number>> //map player nickname -> promptId -> number of responses
   private roomId: string
   private openPrompts: Map<string, PromptRules> // promptId's that are currently answerable (usually just one)
+  //TODO: be able to add response validator from the game object (so that you can do custom logic like rejecting duplicate names in superlatives)
 
   constructor(roomId: string) {
     this.roomId = roomId
@@ -37,6 +38,7 @@ export default class PromptManager {
     promptId: string,
     rules: PromptRules,
     onValidResponse: (playerNickname: string, value: string) => void,
+    // TODO this is where to add the custom validation function
   ) {
     this.openPrompts.set(promptId, rules)
     this.promptCallbacks.set(promptId, onValidResponse)

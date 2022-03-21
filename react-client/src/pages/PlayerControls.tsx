@@ -75,6 +75,17 @@ const PlayerControls = () => {
     setCustomResponse('')
   }
 
+  const onSubmitResponse = (responseText: string) => {
+    if (!prompt || !prompt.promptId || !responseText) {
+      return
+    }
+    const promptResponse: PromptResponse = {
+      promptId: prompt.promptId,
+      response: responseText,
+    }
+    playerSocket?.emit(ClientEvents.PromptResponse, promptResponse)
+  }
+
   const renderResponseOptions = () => {
     if (prompt && prompt.rules.type === PromptType.Selection) {
       const buttonColor = randomColor()
@@ -88,6 +99,9 @@ const PlayerControls = () => {
                   variant="contained"
                   color="primary"
                   sx={{ mx: 1, backgroundColor: buttonColor }}
+                  onClick={() => {
+                    onSubmitResponse(option)
+                  }}
                 >
                   {option}
                 </Button>

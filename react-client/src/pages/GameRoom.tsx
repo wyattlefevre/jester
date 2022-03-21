@@ -54,7 +54,8 @@ const GameRoom = () => {
   }
 
   const next = () => {
-    console.log('next')
+    console.log('next phase')
+    hostSocket?.emit(ClientEvents.NextPhase)
   }
 
   return (

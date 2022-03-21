@@ -133,6 +133,12 @@ class Room {
     sm.emit(player.getSocket().id, Events.ClosePrompt)
   }
 
+  allPlayersPromptClose() {
+    this.players.forEach((player) => {
+      this.playerPromptClose(player)
+    })
+  }
+
   private onGameEnd = () => {
     console.log('game over')
   }
@@ -142,6 +148,12 @@ class Room {
       if (!this.gameStarted) {
         this.startGame()
         this.gameStarted = true
+      }
+    })
+    hostSocket.on(Events.NextPhase, () => {
+      if (this.gameStarted) {
+        console.log('room: calling nextphase() on game')
+        this.game.nextPhase()
       }
     })
   }
