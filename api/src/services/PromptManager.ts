@@ -15,10 +15,11 @@ export default class PromptManager {
     this.promptCallbacks = new Map<string, (promptId: string, playerNickname: string) => void>()
   }
 
-  handlePlayerPromptResponse(nickname: string, response: PromptResponse): boolean {
+  handlePlayerPromptResponse(nickname: string, response: PromptResponse): number {
+    // returns -1 on error or the number of responses remaining for the player
     const responseLimit = this.getResponseLimit(response.promptId)
     if (responseLimit === 0) {
-      return false
+      return -1
     }
     if (
       this.isValidPromptResponse(response) &&
@@ -27,9 +28,9 @@ export default class PromptManager {
       this.incrementPlayerResponseCount(nickname, response.promptId)
       const successCallback = this.promptCallbacks.get(response.promptId)
       successCallback(nickname, response.response)
-      return true
+      return responseLimit - this.getPlayerResponseCount(nickname, response.promptId)
     }
-    return false
+    return -1
   }
 
   openPrompt(

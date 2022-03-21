@@ -80,6 +80,7 @@ export enum Events {
   NextPhase = 'next-phase',
   Prompt = 'prompt',
   PromptResponse = 'prompt-response',
+  ClosePrompt = 'close-prompt',
   Error = 'error',
   Message = 'message',
 }

@@ -85,7 +85,7 @@ const GameRoom = () => {
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
         {gameStarted ? (
-          <Button variant="contained" onClick={startGame}>
+          <Button variant="contained" onClick={next}>
             Next
           </Button>
         ) : (

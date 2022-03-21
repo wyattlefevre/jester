@@ -8,6 +8,7 @@ export enum ClientEvents {
   NextPhase = 'next-phase',
   Prompt = 'prompt',
   PromptResponse = 'prompt-response',
+  ClosePrompt = 'close-prompt',
   Error = 'error',
   Message = 'message',
 }

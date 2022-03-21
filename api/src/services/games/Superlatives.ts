@@ -7,6 +7,7 @@ import Room from '../Room'
 
 export default class Superlatives implements GameInstance {
   private NAMES_PER_PLAYER = 3
+  private INCLUDE_CURRENT_PLAYERS = true
   private room: Room
   private promptManager: PromptManager
   private namesList: string[]
@@ -18,6 +19,10 @@ export default class Superlatives implements GameInstance {
   start(room: Room, onGameEnd: () => void) {
     this.room = room
     this.namesList = []
+    if (this.INCLUDE_CURRENT_PLAYERS) {
+      const playerNicknames = this.room.getPlayerNames()
+      this.namesList = playerNicknames
+    }
     this.currentPhase = 0
     console.log('superlatives game started!!')
     this.executeCurrentPhase()
@@ -36,10 +41,17 @@ export default class Superlatives implements GameInstance {
   }
 
   private nameGenerationPhase = () => {
-    this.room.messageHost([
-      { text: 'Names', size: HostMessageSizes.large },
-      { text: 'example name', size: HostMessageSizes.small },
-    ])
+    if (this.namesList.length == 0) {
+      this.room.messageHost([
+        { text: 'Names', size: HostMessageSizes.large },
+        { text: 'Names will appear here.', size: HostMessageSizes.small },
+      ])
+    } else {
+      const nameListMessages: HostMessage[] = this.namesList.map((name) => {
+        return { text: name, size: HostMessageSizes.small }
+      })
+      this.room.messageHost([{ text: 'Names', size: HostMessageSizes.large }, ...nameListMessages])
+    }
     const nameGenerationPrompt: Prompt = {
       promptId: 'name-generation',
       prompt: 'Add names to the pool',

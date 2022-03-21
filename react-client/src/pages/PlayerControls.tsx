@@ -1,4 +1,13 @@
-import { AppBar, Button, Container, OutlinedInput, Toolbar, Typography } from '@mui/material'
+import {
+  Alert,
+  AppBar,
+  Button,
+  Container,
+  OutlinedInput,
+  Snackbar,
+  Toolbar,
+  Typography,
+} from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
@@ -15,6 +24,10 @@ const PlayerControls = () => {
   const [nickname, setNickname] = useState<string>('')
   const [customResponse, setCustomResponse] = useState<string>('')
   const [playerSocket, setPlayerSocket] = useState<Socket | null>()
+  const [displayError, setDisplayError] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
+  // TODO: keep track of number of responses. shoould there be an acknowledge? could wait for acknowledge before allowing another submit.
+  // acknowledge could also send back the number of responses left. when it's zero, you could clear the screen and set to waiting until the next prompt is set
   const randomColor = () => {
     return colors[Math.floor(Math.random() * colors.length)]
   }
@@ -38,6 +51,14 @@ const PlayerControls = () => {
     socket.on(ClientEvents.Message, (msg) => {
       setMessage(msg)
     })
+    socket.on(ClientEvents.Error, (msg) => {
+      setError(msg)
+      setDisplayError(true)
+    })
+    socket.on(ClientEvents.ClosePrompt, () => {
+      setPrompt(null)
+    })
+
     setPlayerSocket(socket)
     console.log('play game as', localNickName)
   }, [])
@@ -126,6 +147,13 @@ const PlayerControls = () => {
     )
   }
 
+  const handleCloseError = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setDisplayError(false)
+  }
+
   return (
     <div>
       <AppBar position="static" sx={{ backgroundColor: bgColor }}>
@@ -144,6 +172,11 @@ const PlayerControls = () => {
         <Typography>Room {roomId}</Typography>
       </Box>
       <Container>{prompt && renderPrompt()}</Container>
+      <Snackbar open={displayError} autoHideDuration={4000} onClose={handleCloseError}>
+        <Alert onClose={handleCloseError} severity="error" sx={{ width: '100%' }}>
+          {error}
+        </Alert>
+      </Snackbar>
     </div>
   )
 }

@@ -16,6 +16,7 @@ class Room {
   private lobbyOpen: boolean
   private playerMinimum: number
   private promptManager: PromptManager
+  private gameStarted: boolean
 
   constructor(
     game: GameInstance,
@@ -33,6 +34,7 @@ class Room {
     this.playerMinimum = playerMinimum
     this.hostToken = hostToken
     this.promptManager = promptManager
+    this.gameStarted = false
   }
 
   isAcceptingNewPlayers(): boolean {
@@ -126,13 +128,21 @@ class Room {
     this.emitToPlayers(Events.Prompt, prompt)
   }
 
+  playerPromptClose(player: Player) {
+    const sm = SocketManager.getInstance()
+    sm.emit(player.getSocket().id, Events.ClosePrompt)
+  }
+
   private onGameEnd = () => {
     console.log('game over')
   }
 
   private addHostListeners(hostSocket: Socket) {
     hostSocket.on(Events.StartGame, () => {
-      this.startGame()
+      if (!this.gameStarted) {
+        this.startGame()
+        this.gameStarted = true
+      }
     })
   }
 
@@ -143,8 +153,17 @@ class Room {
       this.removePlayer(player.getNickname())
     })
     playerSocket.on(Events.PromptResponse, (response: PromptResponse) => {
-      if (!this.promptManager.handlePlayerPromptResponse(player.getNickname(), response)) {
-        this.sendPlayerError('response not saved', player)
+      const remainingResponseCount = this.promptManager.handlePlayerPromptResponse(
+        player.getNickname(),
+        response,
+      )
+      switch (remainingResponseCount) {
+        case -1:
+          this.sendPlayerError('error saving response', player)
+          break
+        case 0:
+          this.playerPromptClose(player)
+          break
       }
     })
   }
@@ -154,7 +173,7 @@ class Room {
     sm.sendError(player.getSocket().id, message)
   }
 
-  private getPlayerNames(): string[] {
+  getPlayerNames(): string[] {
     return Array.from(this.players.keys())
   }
 }
