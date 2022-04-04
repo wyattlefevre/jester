@@ -77,6 +77,8 @@ const PlayerControls = () => {
 
   const onSubmitResponse = (responseText: string) => {
     if (!prompt || !prompt.promptId || !responseText) {
+      console.log('nothing to submit')
+      console.log(prompt, responseText)
       return
     }
     const promptResponse: PromptResponse = {
