@@ -128,6 +128,12 @@ class Room {
     this.emitToPlayers(Events.Prompt, prompt)
   }
 
+  promptPlayer(prompt: Prompt, playerNickname: string) {
+    const sm = SocketManager.getInstance()
+    const player = this.players.get(playerNickname)
+    sm.emit(player.getSocket().id, Events.Prompt, prompt)
+  }
+
   playerPromptClose(player: Player) {
     const sm = SocketManager.getInstance()
     sm.emit(player.getSocket().id, Events.ClosePrompt)

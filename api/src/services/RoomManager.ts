@@ -1,5 +1,6 @@
 import { GameInstance, GameSetting } from './GameInstance'
 import { Superlatives } from './games'
+import MedevialRPS from './games/MedievalRPS'
 import { GameError } from './GameService'
 import PromptManager from './PromptManager'
 import Room from './Room'
@@ -42,14 +43,16 @@ class RoomManager {
   }
 
   public openRoom(gameId: number, gameSettings: GameSetting[], hostToken: string): string {
+    const roomId = this.generateRoomId()
+    const promptManager = new PromptManager(roomId)
+    let game: GameInstance
+    let room: Room
     switch (gameId) {
       case Superlatives.gameId:
-        const roomId = this.generateRoomId()
-        const promptManager = new PromptManager(roomId)
-        const game = new Superlatives()
+        game = new Superlatives()
         game.applySettings(gameSettings)
         game.setPromptManager(promptManager)
-        const room = new Room(
+        room = new Room(
           game,
           Superlatives.playerLimit,
           roomId,
@@ -57,12 +60,26 @@ class RoomManager {
           hostToken,
           promptManager,
         )
-        console.log('opening room with code: ', roomId)
-        this.rooms.set(roomId, room)
-        return roomId
+        break
+      case MedevialRPS.gameId:
+        game = new MedevialRPS()
+        game.applySettings(gameSettings)
+        game.setPromptManager(promptManager)
+        room = new Room(
+          game,
+          MedevialRPS.playerLimit,
+          roomId,
+          MedevialRPS.playerMinimum,
+          hostToken,
+          promptManager,
+        )
+        break
       default:
         throw new GameError('Invalid gameId')
     }
+    console.log('opening room with code: ', roomId)
+    this.rooms.set(roomId, room)
+    return roomId
   }
 
   public isAcceptingPlayers(roomId: string): boolean {

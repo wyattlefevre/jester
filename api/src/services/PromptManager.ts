@@ -48,6 +48,12 @@ export default class PromptManager {
     this.openPrompts.delete(promptId)
   }
 
+  resetResponseCounts(promptId: string) {
+    this.playerResponseCounts.forEach((promptCounts) => {
+      promptCounts.set(promptId, 0)
+    })
+  }
+
   private isValidPromptResponse(response: PromptResponse): boolean {
     if (!this.openPrompts.has(response.promptId)) {
       return false

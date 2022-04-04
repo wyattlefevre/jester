@@ -15,7 +15,8 @@ export default class Superlatives implements GameInstance {
   private superlativeList: string[]
   private currentPhase: number = 0
   private voting: boolean = false
-  private currentSuperlative = 0
+  private currentSuperlativeIndex = 0
+  private votingRound = 1
   private superlativeVotes: Map<string, Map<string, number>> // superlative -> nickname -> number of votes
 
   applySettings(settings: GameSetting[]) {
@@ -32,7 +33,7 @@ export default class Superlatives implements GameInstance {
     this.superlativeList = []
     this.voting = false
     this.currentPhase = 0
-    this.currentSuperlative = 0
+    this.currentSuperlativeIndex = 0
     this.superlativeVotes = new Map<string, Map<string, number>>()
     console.log('superlatives game started!!')
     this.executeCurrentPhase()
@@ -42,7 +43,10 @@ export default class Superlatives implements GameInstance {
     console.log('in game: nextPhase()')
     if (this.voting) {
       console.log('calling voting phase (still voting)')
+      this.currentSuperlativeIndex = this.votingRound
+      console.log(this.currentSuperlativeIndex, this.votingRound)
       this.votingPhase()
+      this.votingRound += 1
     } else {
       console.log('moving on to next phase')
       this.currentPhase++
@@ -132,28 +136,29 @@ export default class Superlatives implements GameInstance {
   }
   private votingPhase = () => {
     this.voting = true
-    console.log('voting phase. current superlative:', this.superlativeList[this.currentSuperlative])
-    if (this.currentSuperlative === 0) {
+    const currentSuperlative = this.superlativeList[this.currentSuperlativeIndex]
+    console.log('voting phase. current superlative:', currentSuperlative)
+    if (this.currentSuperlativeIndex === 0) {
       this.promptManager.closePrompt(SuperlativePromptIds.SuperlativeGeneration)
     } else {
       this.promptManager.closePrompt(
-        SuperlativePromptIds.SuperlativeVotePre + this.superlativeList[this.currentSuperlative - 1],
+        SuperlativePromptIds.SuperlativeVotePre +
+          this.superlativeList[this.currentSuperlativeIndex - 1],
       )
     }
     this.room.allPlayersPromptClose()
 
     this.room.messageHost([
       { text: 'Time to vote!', size: HostMessageSizes.large },
-      { text: this.superlativeList[this.currentSuperlative], size: HostMessageSizes.medium },
+      { text: currentSuperlative, size: HostMessageSizes.medium },
       { text: '', size: HostMessageSizes.medium },
       { text: 'Who has voted:', size: HostMessageSizes.small },
     ])
 
     const playersThatHaveVoted = new Set<string>()
     const superlativeVotePrompt: Prompt = {
-      promptId:
-        SuperlativePromptIds.SuperlativeVotePre + this.superlativeList[this.currentSuperlative],
-      prompt: `Vote for: ${this.superlativeList[this.currentSuperlative]}`,
+      promptId: SuperlativePromptIds.SuperlativeVotePre + currentSuperlative,
+      prompt: `Vote for: ${currentSuperlative}`,
       rules: {
         type: PromptType.Selection,
         limit: 1,
@@ -166,21 +171,14 @@ export default class Superlatives implements GameInstance {
       superlativeVotePrompt.rules,
       (nickname, value) => {
         console.log('received vote from', nickname, value)
-        if (!this.superlativeVotes.get(this.superlativeList[this.currentSuperlative])) {
-          this.superlativeVotes.set(
-            this.superlativeList[this.currentSuperlative],
-            new Map<string, number>(),
-          )
+        if (!this.superlativeVotes.get(currentSuperlative)) {
+          this.superlativeVotes.set(currentSuperlative, new Map<string, number>())
         }
-        if (!this.superlativeVotes.get(this.superlativeList[this.currentSuperlative]).get(value)) {
-          this.superlativeVotes.get(this.superlativeList[this.currentSuperlative]).set(value, 0)
+        if (!this.superlativeVotes.get(currentSuperlative).get(value)) {
+          this.superlativeVotes.get(currentSuperlative).set(value, 0)
         }
-        const currentCount = this.superlativeVotes
-          .get(this.superlativeList[this.currentSuperlative])
-          .get(value)
-        this.superlativeVotes
-          .get(this.superlativeList[this.currentSuperlative])
-          .set(value, currentCount + 1)
+        const currentCount = this.superlativeVotes.get(currentSuperlative).get(value)
+        this.superlativeVotes.get(currentSuperlative).set(value, currentCount + 1)
 
         playersThatHaveVoted.add(nickname)
         const playersThatHaveVotedArr = Array.from(playersThatHaveVoted.keys())
@@ -189,7 +187,10 @@ export default class Superlatives implements GameInstance {
         })
         this.room.messageHost([
           { text: 'Time to vote!', size: HostMessageSizes.large },
-          { text: this.superlativeList[this.currentSuperlative], size: HostMessageSizes.medium },
+          {
+            text: currentSuperlative,
+            size: HostMessageSizes.medium,
+          },
           { text: '', size: HostMessageSizes.medium },
           { text: 'Who has voted:', size: HostMessageSizes.small },
           ...votedMessages,
@@ -199,12 +200,46 @@ export default class Superlatives implements GameInstance {
 
     this.room.promptPlayers(superlativeVotePrompt)
 
-    this.currentSuperlative++
-    if (this.currentSuperlative >= this.superlativeList.length) {
+    if (this.currentSuperlativeIndex + 1 >= this.superlativeList.length) {
       this.voting = false
     }
   }
-  private resultsPhase = () => {}
+  private resultsPhase = () => {
+    console.log('---results phase---')
+    console.log('superlativeVotes:')
+    console.log(this.superlativeVotes)
+    this.promptManager.closePrompt(
+      SuperlativePromptIds.SuperlativeVotePre +
+        this.superlativeList[this.currentSuperlativeIndex - 1],
+    )
+    this.room.allPlayersPromptClose()
+    const superlativeResults = new Map<string, [string[], number]>() //superlative name -> winner(s)
+
+    this.superlativeVotes.forEach((counts, superlative) => {
+      let winner = []
+      let currentMax = 0
+      counts.forEach((count, playername) => {
+        if (count > currentMax) {
+          winner = [playername]
+          currentMax = count
+        } else if (count === currentMax) {
+          winner.push(playername)
+        }
+      })
+      superlativeResults.set(superlative, [winner, currentMax])
+      console.log('winner is', winner, 'of superlative', superlative)
+    })
+
+    const resultsMessages: HostMessage[] = []
+    superlativeResults.forEach(([winner, votes], superlative) => {
+      let winnerString = winner.join(' ')
+      resultsMessages.push({
+        text: `${superlative}: ${winnerString} (${votes})`,
+        size: HostMessageSizes.medium,
+      })
+    })
+    this.room.messageHost([{ text: 'Results', size: HostMessageSizes.large }, ...resultsMessages])
+  }
   private readonly phases = [
     this.nameGenerationPhase,
     this.superlativeGenerationPhase,
@@ -213,24 +248,17 @@ export default class Superlatives implements GameInstance {
   ]
 
   static gameId: number = GameIds.Superlatives
-  static gameName: string = 'superlatives'
-  static gameDescription: string = 'a fun superlatives party game'
+  static gameName: string = 'Superlatives'
+  static gameDescription: string = 'A fun superlatives party game'
   static gameSettingDescriptions: GameSettingDescription[] = [
     {
-      name: 'example',
+      name: 'example (superlatives)',
       type: 'string',
       defaultValue: 'default value',
     },
   ]
   static playerLimit: number = 10
   static playerMinimum: number = 3
-  static getInfo(): GameInfo {
-    return {
-      gameId: this.gameId,
-      gameName: this.gameName,
-      gameDescription: this.gameDescription,
-    }
-  }
 }
 
 enum SuperlativePromptIds {
