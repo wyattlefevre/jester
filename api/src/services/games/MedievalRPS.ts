@@ -154,7 +154,7 @@ export default class MedevialRPS implements GameInstance {
 
   private endGame() {
     this.room.messageHost([
-      { text: `${this.bracket[0]} is the campion`, size: HostMessageSizes.large },
+      { text: `${this.bracket[0]} is the champion`, size: HostMessageSizes.large },
     ])
   }
 
@@ -164,8 +164,8 @@ export default class MedevialRPS implements GameInstance {
   static gameSettingDescriptions: GameSettingDescription[] = [
     {
       name: 'example (m RPS)',
-      type: 'string',
-      defaultValue: 'default value',
+      type: 'number',
+      defaultValue: 0,
     },
   ]
   static playerLimit: number = 10

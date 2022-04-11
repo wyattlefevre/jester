@@ -21,6 +21,22 @@ export default class Superlatives implements GameInstance {
 
   applySettings(settings: GameSetting[]) {
     console.log('applying game settings')
+    console.log(settings)
+    settings.forEach((setting) => {
+      switch (setting.name) {
+        case 'Names per player':
+          if (typeof setting.value === 'number' && setting.value > 0 && setting.value < 5)
+            this.NAMES_PER_PLAYER = setting.value
+          break
+        case 'Superlatives per player':
+          if (typeof setting.value === 'number' && setting.value > 0 && setting.value < 5)
+            this.SUPERLATIVES_PER_PLAYER = setting.value
+          break
+        case 'Include Player Names':
+          if (typeof setting.value === 'boolean') this.INCLUDE_CURRENT_PLAYERS = setting.value
+          break
+      }
+    })
   }
   validateSettings: (settings: GameSetting[]) => boolean
   start(room: Room, onGameEnd: () => void) {
@@ -252,9 +268,26 @@ export default class Superlatives implements GameInstance {
   static gameDescription: string = 'A fun superlatives party game'
   static gameSettingDescriptions: GameSettingDescription[] = [
     {
-      name: 'example (superlatives)',
-      type: 'string',
-      defaultValue: 'default value',
+      name: 'Names per player',
+      description: 'The number of names a player can add to the name pool',
+      type: 'number',
+      defaultValue: 3,
+      min: 0,
+      max: 5,
+    },
+    {
+      name: 'Superlatives per player',
+      description: 'The number of superlatives a player can add to the superlative pool',
+      type: 'number',
+      defaultValue: 2,
+      min: 0,
+      max: 5,
+    },
+    {
+      name: 'Include Player Names',
+      description: 'Include player names in the name pool',
+      type: 'boolean',
+      defaultValue: true,
     },
   ]
   static playerLimit: number = 10

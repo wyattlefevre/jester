@@ -43,6 +43,8 @@ class RoomManager {
   }
 
   public openRoom(gameId: number, gameSettings: GameSetting[], hostToken: string): string {
+    console.log('open room settings')
+    console.log(gameSettings)
     const roomId = this.generateRoomId()
     const promptManager = new PromptManager(roomId)
     let game: GameInstance

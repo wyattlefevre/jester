@@ -15,7 +15,6 @@ const authenticated = (req: Request, res: Response, next) => {
 
   cognitoExpress.validate(accessTokenFromClient, (err, response) => {
     if (err) return res.status(401).send(err)
-    console.log('authorized!')
     res.locals.user = response
     next()
   })

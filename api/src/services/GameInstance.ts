@@ -17,11 +17,14 @@ export interface GameInstance {
 
 export interface GameSettingDescription {
   name: string
-  type: 'string' | 'number'
-  defaultValue: string | number
+  description?: string
+  type: 'number' | 'boolean'
+  defaultValue: number | boolean
+  min?: number
+  max?: number
 }
 
 export interface GameSetting {
   name: string
-  value: string | number
+  value: number | boolean
 }
