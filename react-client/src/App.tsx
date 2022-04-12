@@ -72,7 +72,7 @@ function RequireAuth({ children }: { children: JSX.Element }) {
     auth
       .getSession()
       .then((session) => {
-        if (!session) {
+        if (!session?.isValid()) {
           console.error('session no longer active')
           navigate('/login', { state: { from: location } })
         }
